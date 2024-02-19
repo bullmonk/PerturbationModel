@@ -13,6 +13,11 @@ mlat = original_data.full_mlat;
 xeq = original_data.full_xeq;
 yeq = original_data.full_yeq;
 
+% coordinates
+[theta, rho] = cart2pol(xeq, yeq);
+cs = cos(theta);
+sn = sin(theta);
+
 % calculate the perturbation.
  perturbation = 2 * (density_upper_bond - density_lower_bond)./(density_upper_bond + density_lower_bond);
 
@@ -25,15 +30,26 @@ sym_h = interp1(original_data.partial_epoches, ...
     original_data.partial_sym_h, ...
     original_data.full_epoches);
 
-% collect into table.
-variable_names = {'time', 'mlat', 'cos', 'sin', 'rho', 'ae_index', 'sym_h', 'perturbation'};
-[theta, rho] = cart2pol(xeq, yeq);
-cs = cos(theta);
-sn = sin(theta);
+% lag data by 60 days to create 60 new variables for sym_h and ae_index
+[ae_names, ae_variables] = buildTimeSeries('ae_index', ae_index);
+[symh_names, symh_variables] = buildTimeSeries('sym_h', sym_h);
 
-table = table(t', mlat', cs', sn', rho', ...
-    ae_index', sym_h', ...
-    perturbation', 'VariableNames', variable_names);
+% cut 60 rows for all other input variables
+t = t(1: end - 60);
+mlat = mlat(1: end - 60);
+cs = cs(1: end - 60);
+sn = sn(1: end - 60);
+rho = rho(1: end - 60);
+den = original_data.full_log_den(1: end - 60);
+
+
+% build variable names
+variable_names = ["time", "mlat", "cos", "sin", "rho", ae_names, symh_names, "density"];
+variable_name_cells = cellstr(variable_names);
+
+% put into table
+matrix = [t', mlat', cs', sn', rho', ae_variables, symh_variables, den'];
+table = array2table(matrix, 'VariableNames', variable_name_cells);
 
 % use sub selected data to reduce data size.
 selection_rate = 1/1000;
@@ -41,4 +57,5 @@ sz = length(t);
 row_indexes = randperm(sz, int32(sz*selection_rate));
 subtable = table(row_indexes, :);
 
-% writetable(subtable, 'dataf1000.csv', 'WriteVariableNames', true);
+% save data
+writetable(subtable, 'den_dataf1000.csv', 'WriteVariableNames', true);
