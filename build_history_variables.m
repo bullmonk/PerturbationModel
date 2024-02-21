@@ -6,7 +6,7 @@ function [names, arrays] = build_history_variables(name, array, array_time, targ
     
     % build lagged variables
     for lag = 0:60
-        arrays(:, lag + 1) = interp1(array_time, array, target_time - minutes(5 * lag));
+        arrays(:, lag + 1) = interp1(array_time, array, target_time - minutes(5 * lag), 'linear', 'extrap');
     end
 
     % build names for each array

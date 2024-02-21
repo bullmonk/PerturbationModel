@@ -83,6 +83,17 @@ plot(sym_h);
 [ae_names, ae_variables] = build_history_variables('ae_index', ae_index, omni_time, time);
 [symh_names, symh_variables] = build_history_variables('sym_h', sym_h, omni_time, time);
 
+% plot and check lagged data correctness.
+plot_name = "first 3 lagged sym_h data";
+[fig, window_idx] = get_next_figure(window_idx, plot_name);
+figure(fig)
+tiledlayout(3, 1)
+nexttile;
+plot(symh_variables(:, 2)');
+nexttile;
+plot(symh_variables(:, 3)');
+nexttile;
+plot(symh_variables(:, 4)');
 
 % build variable names
 variable_names = ["time", "mlat", "cos", "sin", "rho", ae_names, symh_names, "density"];
@@ -91,13 +102,14 @@ matrix = [t', mlat', cs', sn', rho', ae_variables, symh_variables, density'];
 % delete rows with NaN
 nanRows = any(isnan(matrix), 2);
 matrix = matrix(~nanRows, :);
+% write results into table
 table = array2table(matrix, 'VariableNames', variable_name_cells);
 
 % use sub selected data to reduce data size.
 selection_rate = 1/1000;
-sz = length(t);
+sz = size(matrix, 1);
 row_indexes = randperm(sz, int32(sz*selection_rate));
 subtable = table(row_indexes, :);
 
 % save data
-% writetable(subtable, 'den_dataf1000.csv', 'WriteVariableNames', true);
+writetable(subtable, 'den_dataf1000.csv', 'WriteVariableNames', true);
