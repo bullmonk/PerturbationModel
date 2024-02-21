@@ -60,8 +60,8 @@ plot(density);
 % perturbation = 2 * (density_upper_bond - density_lower_bond)./(density_upper_bond + density_lower_bond);
 
 % fetch omni data: ae_index and sym_h, fetched and interpolated
-omini_t = original_data.partial_epoches;
-omini_time = datetime(omini_t, 'convertfrom', 'posixtime', 'Format', 'MM/dd/yy HH:mm:ss.SSSSSSSSS');
+omni_t = original_data.partial_epoches;
+omni_time = datetime(omni_t, 'convertfrom', 'posixtime', 'Format', 'MM/dd/yy HH:mm:ss.SSSSSSSSS');
 ae_index = original_data.partial_ae_index;
 sym_h = original_data.partial_sym_h;
 
@@ -71,7 +71,7 @@ plot_name = "omni data time";
 figure(fig)
 tiledlayout(3, 1)
 nexttile;
-plot(omini_t);
+plot(omni_t);
 nexttile;
 plot(ae_index);
 nexttile;
@@ -79,30 +79,18 @@ plot(sym_h);
 % looks like it's in time order already
 
 
-% interpolate ae_index and sym_h with density time
-ae_index = interp1(omini_time, ae_index, time);
-sym_h = interp1(omini_time, sym_h, time);
-
-
 % lag data by 60 days to create 60 new variables for sym_h and ae_index
-[ae_names, ae_variables] = build_history_variables('ae_index', ae_index);
-[symh_names, symh_variables] = build_history_variables('sym_h', sym_h);
-
-% cut 60 rows for all other input variables
-t = t(1: end - 60);
-mlat = mlat(1: end - 60);
-cs = cs(1: end - 60);
-sn = sn(1: end - 60);
-rho = rho(1: end - 60);
-den = original_data.full_log_den(1: end - 60);
+[ae_names, ae_variables] = build_history_variables('ae_index', ae_index, omni_time, time);
+[symh_names, symh_variables] = build_history_variables('sym_h', sym_h, omni_time, time);
 
 
 % build variable names
 variable_names = ["time", "mlat", "cos", "sin", "rho", ae_names, symh_names, "density"];
 variable_name_cells = cellstr(variable_names);
-
-% put into table
-matrix = [t', mlat', cs', sn', rho', ae_variables, symh_variables, den'];
+matrix = [t', mlat', cs', sn', rho', ae_variables, symh_variables, density'];
+% delete rows with NaN
+nanRows = any(isnan(matrix), 2);
+matrix = matrix(~nanRows, :);
 table = array2table(matrix, 'VariableNames', variable_name_cells);
 
 % use sub selected data to reduce data size.
