@@ -2,37 +2,91 @@ close all; clear; clc;
 
 load('/Users/xliu/UTD/perturbation/data/original-data.mat');
 
-% get density value.
+% original data densities
 density = 10.^(original_data.full_log_den);
 density_lower_bond = 10.^(original_data.full_log_den_down);
 density_upper_bond = 10.^(original_data.full_log_den_upper);
 
-% original data
-t = original_data.full_epoches;
+% original data time and coordinates that matching the densities
+t = original_data.full_epoches; % time in epoch units
+time = datetime(t, 'convertfrom', 'posixtime', 'Format', 'MM/dd/yy HH:mm:ss.SSSSSSSSS');
 mlat = original_data.full_mlat;
 xeq = original_data.full_xeq;
 yeq = original_data.full_yeq;
 
-% coordinates
+% coordinates converted to polar coordinate
 [theta, rho] = cart2pol(xeq, yeq);
 cs = cos(theta);
 sn = sin(theta);
 
-% calculate the perturbation.
- perturbation = 2 * (density_upper_bond - density_lower_bond)./(density_upper_bond + density_lower_bond);
+% plot time and its corresponding density data
+window_idx = 1;
+plot_name = "given time series for density data";
+[fig, window_idx] = get_next_figure(window_idx, plot_name);
+figure(fig)
+tiledlayout(2, 1)
+nexttile;
+plot(time);
+nexttile;
+plot(density);
+% not sorted by time
 
-% interporlation on the omni data.
-ae_index = interp1(original_data.partial_epoches, ...
-    original_data.partial_ae_index, ...
-    original_data.full_epoches);
 
-sym_h = interp1(original_data.partial_epoches, ...
-    original_data.partial_sym_h, ...
-    original_data.full_epoches);
+% sort all variables above based on time
+[~, sorted_order] = sort(time);
+t = t(sorted_order);
+mlat = mlat(sorted_order);
+rho = rho(sorted_order);
+cs = cs(sorted_order);
+sn = sn(sorted_order);
+time = time(sorted_order);
+density = density(sorted_order);
+density_lower_bond = density_lower_bond(sorted_order);
+density_upper_bond = density_upper_bond(sorted_order);
+clear sorted_order;
+
+% check sort result
+plot_name = "sorted time series and density for density data";
+[fig, window_idx] = get_next_figure(window_idx, plot_name);
+figure(fig)
+tiledlayout(2, 1)
+nexttile;
+plot(time);
+nexttile;
+plot(density);
+
+
+% calculate the perturbation
+% perturbation = 2 * (density_upper_bond - density_lower_bond)./(density_upper_bond + density_lower_bond);
+
+% fetch omni data: ae_index and sym_h, fetched and interpolated
+omini_t = original_data.partial_epoches;
+omini_time = datetime(omini_t, 'convertfrom', 'posixtime', 'Format', 'MM/dd/yy HH:mm:ss.SSSSSSSSS');
+ae_index = original_data.partial_ae_index;
+sym_h = original_data.partial_sym_h;
+
+% plot and check omini data time
+plot_name = "omni data time";
+[fig, window_idx] = get_next_figure(window_idx, plot_name);
+figure(fig)
+tiledlayout(3, 1)
+nexttile;
+plot(omini_t);
+nexttile;
+plot(ae_index);
+nexttile;
+plot(sym_h);
+% looks like it's in time order already
+
+
+% interpolate ae_index and sym_h with density time
+ae_index = interp1(omini_time, ae_index, time);
+sym_h = interp1(omini_time, sym_h, time);
+
 
 % lag data by 60 days to create 60 new variables for sym_h and ae_index
-[ae_names, ae_variables] = buildTimeSeries('ae_index', ae_index);
-[symh_names, symh_variables] = buildTimeSeries('sym_h', sym_h);
+[ae_names, ae_variables] = build_history_variables('ae_index', ae_index);
+[symh_names, symh_variables] = build_history_variables('sym_h', sym_h);
 
 % cut 60 rows for all other input variables
 t = t(1: end - 60);
@@ -58,4 +112,4 @@ row_indexes = randperm(sz, int32(sz*selection_rate));
 subtable = table(row_indexes, :);
 
 % save data
-writetable(subtable, 'den_dataf1000.csv', 'WriteVariableNames', true);
+% writetable(subtable, 'den_dataf1000.csv', 'WriteVariableNames', true);
