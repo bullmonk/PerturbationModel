@@ -1,6 +1,6 @@
 close all; clear; clc;
 
-load('/Users/xliu/UTD/perturbation/data/original-data.mat');
+load('./data/original-data.mat');
 
 % original data densities
 density = 10.^(original_data.full_log_den);
