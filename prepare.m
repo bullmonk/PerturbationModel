@@ -25,10 +25,16 @@ plot_name = "given time series for density data";
 [fig, window_idx] = get_next_figure(window_idx, plot_name);
 figure(fig)
 tiledlayout(2, 1)
-nexttile;
+ax1 = nexttile;
 plot(time);
-nexttile;
-plot(density);
+title(ax1, 'original time data');
+xlabel(ax1, 'index');
+ylabel(ax1, 'time');
+ax2 = nexttile;
+plot(time, density);
+title(ax2, 'density data - time plot');
+xlabel(ax2, 'time');
+ylabel(ax2,'density');
 % not sorted by time
 
 
@@ -50,11 +56,16 @@ plot_name = "sorted time series and density for density data";
 [fig, window_idx] = get_next_figure(window_idx, plot_name);
 figure(fig)
 tiledlayout(2, 1)
-nexttile;
+ax1 = nexttile;
 plot(time);
-nexttile;
-plot(density);
-
+title(ax1, 'sorted time series from original time data');
+xlabel(ax1, 'index');
+ylabel(ax1, 'time');
+ax2 = nexttile;
+plot(time, density);
+title(ax2, 'density data - time plot to make sure same relative order');
+xlabel(ax2, 'time');
+ylabel(ax2,'density');
 
 % calculate the perturbation
 % perturbation = 2 * (density_upper_bond - density_lower_bond)./(density_upper_bond + density_lower_bond);
@@ -70,12 +81,21 @@ plot_name = "omni data time";
 [fig, window_idx] = get_next_figure(window_idx, plot_name);
 figure(fig)
 tiledlayout(3, 1)
-nexttile;
+ax1 = nexttile;
 plot(omni_t);
-nexttile;
-plot(ae_index);
-nexttile;
-plot(sym_h);
+title(ax1, 'time series from original omni data');
+xlabel(ax1, 'index');
+ylabel(ax1, 'time');
+ax2 = nexttile;
+plot(omni_time, ae_index);
+title(ax2, 'ae\_index data align with original time series');
+xlabel(ax2, 'time');
+ylabel(ax2, 'ae\_index');
+ax3 = nexttile;
+plot(omni_time, sym_h);
+title(ax3, 'sym\_h data align with original time series');
+xlabel(ax3, 'time');
+ylabel(ax3, 'sym\_h');
 % looks like it's in time order already
 
 
@@ -88,12 +108,21 @@ plot_name = "first 3 lagged sym_h data";
 [fig, window_idx] = get_next_figure(window_idx, plot_name);
 figure(fig)
 tiledlayout(3, 1)
-nexttile;
+ax1 = nexttile;
 plot(symh_variables(:, 2)');
-nexttile;
+title(ax1, 'sym\_h data lagged by 5 mins and align with density data');
+xlabel(ax1, 'index');
+ylabel(ax1, 'sym\_h');
+ax2 = nexttile;
 plot(symh_variables(:, 3)');
-nexttile;
+title(ax2, 'sym\_h data lagged by 10 mins and align with density data');
+xlabel(ax2, 'index');
+ylabel(ax2, 'sym\_h');
+ax3 = nexttile;
 plot(symh_variables(:, 4)');
+title(ax3, 'sym\_h data lagged by 15 mins and align with density data');
+xlabel(ax3, 'index');
+ylabel(ax3, 'sym\_h');
 
 % build variable names
 variable_names = ["time", "mlat", "cos", "sin", "rho", ae_names, symh_names, "density"];
