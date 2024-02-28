@@ -3,9 +3,11 @@ close all; clear; clc;
 load('./data/original-data.mat');
 
 % original data densities
-density = 10.^(original_data.full_log_den);
+log_density = original_data.full_log_den;
+density = 10.^(log_density);
 density_lower_bond = 10.^(original_data.full_log_den_down);
 density_upper_bond = 10.^(original_data.full_log_den_upper);
+
 
 % original data time and coordinates that matching the densities
 t = original_data.full_epoches; % time in epoch units
@@ -31,7 +33,7 @@ title(ax1, 'original time data');
 xlabel(ax1, 'index');
 ylabel(ax1, 'time');
 ax2 = nexttile;
-plot(time, density, '.', 'MarkerSize', 3);
+plot(time, log_density, '.', 'MarkerSize', 3);
 title(ax2, 'density data - time plot');
 xlabel(ax2, 'time');
 ylabel(ax2,'density');
@@ -46,6 +48,7 @@ rho = rho(sorted_order);
 cs = cs(sorted_order);
 sn = sn(sorted_order);
 time = time(sorted_order);
+log_density = log_density(sorted_order);
 density = density(sorted_order);
 density_lower_bond = density_lower_bond(sorted_order);
 density_upper_bond = density_upper_bond(sorted_order);
@@ -62,13 +65,13 @@ title(ax1, 'sorted time series from original time data');
 xlabel(ax1, 'index');
 ylabel(ax1, 'time');
 ax2 = nexttile;
-plot(time, density, '.', 'MarkerSize', 3);
+plot(time, log_density, '.', 'MarkerSize', 3);
 title(ax2, 'density data - time plot to make sure same relative order');
 xlabel(ax2, 'time');
 ylabel(ax2,'density');
 
 % calculate the perturbation
-% perturbation = 2 * (density_upper_bond - density_lower_bond)./(density_upper_bond + density_lower_bond);
+perturbation = 2 * (density_upper_bond - density_lower_bond)./(density_upper_bond + density_lower_bond);
 
 % fetch omni data: ae_index and sym_h, fetched and interpolated
 omni_t = original_data.partial_epoches;
@@ -128,9 +131,9 @@ xlim([time(1) time(1) + minutes(60)]);
 ylabel(ax3, 'sym\_h');
 
 % build variable names
-variable_names = ["time", "mlat", "cos", "sin", "rho", ae_names, symh_names, "density"];
+variable_names = ["time", "mlat", "cos", "sin", "rho", ae_names, symh_names, "density", "log_density", "perturbation"];
 variable_name_cells = cellstr(variable_names);
-matrix = [t', mlat', cs', sn', rho', ae_variables, symh_variables, density'];
+matrix = [t', mlat', cs', sn', rho', ae_variables, symh_variables, density', log_density', perturbation'];
 % delete rows with NaN
 nanRows = any(isnan(matrix), 2);
 matrix = matrix(~nanRows, :);
@@ -144,4 +147,4 @@ row_indexes = randperm(sz, int32(sz*selection_rate));
 subtable = table(row_indexes, :);
 
 % save data
-% writetable(subtable, 'den_dataf1000.csv', 'WriteVariableNames', true);
+writetable(subtable, 'dataf1000.csv', 'WriteVariableNames', true);
