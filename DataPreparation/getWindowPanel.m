@@ -1,4 +1,4 @@
-function[left, bottom, width, height] = get_window_panel(i)
+function[left, bottom, width, height] = getWindowPanel(i)
 row = mod(i - 1, 3);
 col = mod(fix((i - 1)/3), 3);
 screen_size = get(groot, 'ScreenSize');

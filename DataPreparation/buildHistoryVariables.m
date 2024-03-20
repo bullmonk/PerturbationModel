@@ -1,4 +1,4 @@
-function [names, arrays] = build_history_variables(name, array, array_time, target_time)
+function [names, arrays] = buildHistoryVariables(name, array, array_time, target_time)
     % build 60 new arraies and build a n x 61 2d array that, n = length of
     % target_time
     n = length(target_time);

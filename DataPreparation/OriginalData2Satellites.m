@@ -25,7 +25,7 @@ sn = sin(theta);
 %% plot time and its corresponding density data
 window_idx = 1;
 plot_name = "given time series for density data";
-[fig, window_idx] = get_next_figure(window_idx, plot_name);
+[fig, window_idx] = getNextFigure(window_idx, plot_name);
 figure(fig)
 tiledlayout(2, 1)
 ax1 = nexttile;
@@ -70,7 +70,7 @@ satellite2.density_upper_bond = density_upper_bond(idx+1:end);
 
 %% check separated result
 plot_name = "sorted time series and density for density data";
-[fig, window_idx] = get_next_figure(window_idx, plot_name);
+[fig, window_idx] = getNextFigure(window_idx, plot_name);
 figure(fig)
 tiledlayout(2, 1)
 ax1 = nexttile;
