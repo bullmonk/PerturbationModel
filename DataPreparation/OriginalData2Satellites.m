@@ -1,8 +1,11 @@
 close all; clear;
 
 %% do we plot?
-doPlot = false;
+doPlot = true;
 window_idx = 1;
+
+%% do we save?
+doSave = false;
 
 %% load original data
 original_data = load('./data/original-data.mat', "-mat", "original_data").original_data;
@@ -60,7 +63,8 @@ satellite1.log_density = log_density(1:idx);
 satellite1.density = density(1:idx);
 satellite1.density_lower_bond = density_lower_bond(1:idx);
 satellite1.density_upper_bond = density_upper_bond(1:idx);
-satellite1.perturbation = calcPerturbation(satellite1.density, satellite1.time, minutes(2), 10);
+[satellite1.perturbation, satellite1.background] = calcPerturbation(satellite1.density, satellite1.time, minutes(2), 10);
+satellite1.normalized_perturbation = satellite1.perturbation ./ satellite1.background;
 
 satellite2.t = t(idx+1:end);
 satellite2.time = time(idx+1:end);
@@ -73,7 +77,8 @@ satellite2.log_density = log_density(idx+1:end);
 satellite2.density = density(idx+1:end);
 satellite2.density_lower_bond = density_lower_bond(idx+1:end);
 satellite2.density_upper_bond = density_upper_bond(idx+1:end);
-satellite2.perturbation = calcPerturbation(satellite2.density, satellite2.time, minutes(2), 10);
+[satellite2.perturbation, satellite2.background] = calcPerturbation(satellite2.density, satellite2.time, minutes(2), 10);
+satellite2.normalized_perturbation = satellite2.perturbation ./ satellite2.background;
 
 %% check 2 satellites
 if doPlot
@@ -92,7 +97,7 @@ if doPlot
     xlabel(ax2, 'time');
     ylabel(ax2,'log density');
     ax3 = nexttile;
-    plot(satellite1.time, satellite1.perturbation, '.', 'MarkerSize', 3);
+    plot(satellite1.time, satellite1.normalized_perturbation, '.', 'MarkerSize', 3);
     title(ax3, 'density perturbation (windowed standard deviation) - time');
     xlabel(ax3, 'time');
     ylabel(ax3,'density perturbation');
@@ -112,12 +117,14 @@ if doPlot
     xlabel(ax2, 'time');
     ylabel(ax2,'log density');
     ax3 = nexttile;
-    plot(satellite2.time, satellite2.perturbation, '.', 'MarkerSize', 3);
+    plot(satellite2.time, satellite2.normalized_perturbation, '.', 'MarkerSize', 3);
     title(ax3, 'density perturbation (windowed standard deviation) - time');
     xlabel(ax3, 'time');
     ylabel(ax3,'density');
 end
 
 %% save
-save("./data/satellite1.mat", "satellite1", "-v7.3");
-save("./data/satellite2.mat", "satellite2", "-v7.3");
+if doSave
+    save("./data/satellite1.mat", "satellite1", "-v7.3");
+    save("./data/satellite2.mat", "satellite2", "-v7.3");
+end

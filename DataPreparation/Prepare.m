@@ -1,7 +1,7 @@
 close all; clear;
 
 %% do we plot?
-doPlot = true;
+doPlot = false;
 window_idx = 1;
 
 %% which satellite?
@@ -17,13 +17,23 @@ satellite1 = load('./data/satellite1.mat', "-mat", "satellite1").satellite1;
 satellite2 = load('./data/satellite2.mat', "-mat", "satellite2").satellite2;
 
 satellites = [satellite1 satellite2];
-clear satellites1 satellite2
+clear satellite1 satellite2
 satellite = satellites(which_satellite);
-clear satellites;
+clear satellites which_satellite
 
 %% unpack satellite data
-
-
+t = satellite.t;
+time = satellite.time;
+mlat = satellite.mlat;
+xeq = satellite.xeq;
+yeq = satellite.yeq;
+cosin = satellite.cs;
+sin = satellite.sn;
+log_density = satellite.log_density;
+density = satellite.density;
+density_lower_bond = satellite.density_lower_bond;
+density_upper_bond = satellite.density_upper_bond;
+perturbation = satellite.normalized_perturbation;
 
 %% fetch omni data: ae_index and sym_h, fetched and interpolated
 omni_t = original_data.partial_epoches;

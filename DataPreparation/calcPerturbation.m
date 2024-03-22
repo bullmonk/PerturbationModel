@@ -1,4 +1,4 @@
-function [perturbation] = calcPerturbation(density, time, windowSize, validGroupCount)
+function [perturbation, background] = calcPerturbation(density, time, windowSize, validGroupCount)
     delta = min(diff(time));
     neighborRange = ceil((windowSize / delta + 1) / 2);
 
@@ -30,7 +30,10 @@ function [perturbation] = calcPerturbation(density, time, windowSize, validGroup
 
 
     perturbation = std(dgrp, 0, 1, "omitmissing");
+    background = mean(dgrp, 1, "omitmissing");
     % apply valid group count, only window with more than validGroupCount
     % data will get perturbation calculated.
-    perturbation(sum(~isnan(perturbation), 1) > validGroupCount) = NaN;
+    omitted = sum(~isnan(perturbation), 1) > validGroupCount;
+    perturbation(omitted) = NaN;
+    background(omitted) = NaN;
 end
