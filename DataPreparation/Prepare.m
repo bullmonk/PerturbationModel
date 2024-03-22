@@ -4,20 +4,26 @@ close all; clear;
 doPlot = true;
 window_idx = 1;
 
+%% which satellite?
+which_satellite = 1;
+
 %% randome subset?
 doSubset = true;
 fractionDenominator = 1000;
 
 
-%% which satellite?
-first = true;
-satellite = NaN;
-if first
-    satellite = load('./data/satellite1.mat', "-mat", "satellite1").satellite1;
-else
-    satellite = load('./data/satellite2.mat', "-mat", "satellite2").satellite2;
-end
-clear first;
+%% load density data
+satellite1 = load('./data/satellite1.mat', "-mat", "satellite1").satellite1;
+satellite2 = load('./data/satellite2.mat', "-mat", "satellite2").satellite2;
+
+satellites = [satellite1 satellite2];
+clear satellites1 satellite2
+satellite = satellites(which_satellite);
+clear satellites;
+
+%% unpack satellite data
+
+
 
 %% fetch omni data: ae_index and sym_h, fetched and interpolated
 omni_t = original_data.partial_epoches;

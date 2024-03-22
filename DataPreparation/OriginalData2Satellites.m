@@ -1,7 +1,7 @@
 close all; clear;
 
 %% do we plot?
-doPlot = true;
+doPlot = false;
 window_idx = 1;
 
 %% load original data
@@ -44,7 +44,7 @@ if doPlot
     ylabel(ax2,'density');
 end
 
-%% not sorted by time
+%% 2 satellites' data found
 % find the time of last data from 1st satellite.
 idx = find(diff(time) < 0);
 
@@ -60,6 +60,7 @@ satellite1.log_density = log_density(1:idx);
 satellite1.density = density(1:idx);
 satellite1.density_lower_bond = density_lower_bond(1:idx);
 satellite1.density_upper_bond = density_upper_bond(1:idx);
+satellite1.perturbation = calcPerturbation(satellite1.density, satellite1.time, minutes(2), 10);
 
 satellite2.t = t(idx+1:end);
 satellite2.time = time(idx+1:end);
@@ -72,38 +73,49 @@ satellite2.log_density = log_density(idx+1:end);
 satellite2.density = density(idx+1:end);
 satellite2.density_lower_bond = density_lower_bond(idx+1:end);
 satellite2.density_upper_bond = density_upper_bond(idx+1:end);
+satellite2.perturbation = calcPerturbation(satellite2.density, satellite2.time, minutes(2), 10);
 
-%% check separated result
+%% check 2 satellites
 if doPlot
-    plot_name = "sorted time series and density for satellite 1";
+    plot_name = "satellite 1";
     [fig, window_idx] = getNextFigure(window_idx, plot_name);
     figure(fig)
-    tiledlayout(2, 1)
+    tiledlayout(3, 1)
     ax1 = nexttile;
     plot(satellite1.time, '.', 'MarkerSize', 3);
-    title(ax1, 'sorted time series from original time data');
+    title(ax1, 'time of satellite 1');
     xlabel(ax1, 'index');
     ylabel(ax1, 'time');
     ax2 = nexttile;
     plot(satellite1.time, satellite1.log_density, '.', 'MarkerSize', 3);
-    title(ax2, 'density data - time plot to make sure same relative order');
+    title(ax2, 'log density - time');
     xlabel(ax2, 'time');
-    ylabel(ax2,'density');
+    ylabel(ax2,'log density');
+    ax3 = nexttile;
+    plot(satellite1.time, satellite1.perturbation, '.', 'MarkerSize', 3);
+    title(ax3, 'density perturbation (windowed standard deviation) - time');
+    xlabel(ax3, 'time');
+    ylabel(ax3,'density perturbation');
     
-    plot_name = "sorted time series and density for satellite 2";
+    plot_name = "satellite 2";
     [fig, window_idx] = getNextFigure(window_idx, plot_name);
     figure(fig)
-    tiledlayout(2, 1)
+    tiledlayout(3, 1)
     ax1 = nexttile;
     plot(satellite2.time, '.', 'MarkerSize', 3);
-    title(ax1, 'sorted time series from original time data');
+    title(ax1, 'time of satellite 2');
     xlabel(ax1, 'index');
     ylabel(ax1, 'time');
     ax2 = nexttile;
     plot(satellite2.time, satellite2.log_density, '.', 'MarkerSize', 3);
-    title(ax2, 'density data - time plot to make sure same relative order');
+    title(ax2, 'log density - time');
     xlabel(ax2, 'time');
-    ylabel(ax2,'density');
+    ylabel(ax2,'log density');
+    ax3 = nexttile;
+    plot(satellite2.time, satellite2.perturbation, '.', 'MarkerSize', 3);
+    title(ax3, 'density perturbation (windowed standard deviation) - time');
+    xlabel(ax3, 'time');
+    ylabel(ax3,'density');
 end
 
 %% save
