@@ -2,11 +2,11 @@ close all; clear;
 
 %% run param
 % do we plot?
-doPlot = true;
+doPlot = false;
 window_idx = 1;
 
 % do we save?
-doSave = true;
+doSave = false;
 
 % save subset?
 saveSubset = false;
@@ -96,7 +96,7 @@ if doPlot
     tiledlayout(3, 1)
     ax1 = nexttile;
     plot(satellite1.time, '.', 'MarkerSize', 3);
-    title(ax1, 'time of satellite 1');
+    title(ax1, 'time');
     xlabel(ax1, 'index');
     ylabel(ax1, 'time');
     ax2 = nexttile;
@@ -116,7 +116,7 @@ if doPlot
     tiledlayout(3, 1)
     ax1 = nexttile;
     plot(satellite2.time, '.', 'MarkerSize', 3);
-    title(ax1, 'time of satellite 2');
+    title(ax1, 'time');
     xlabel(ax1, 'index');
     ylabel(ax1, 'time');
     ax2 = nexttile;
@@ -128,7 +128,7 @@ if doPlot
     plot(satellite2.time, satellite2.normalized_perturbation, '.', 'MarkerSize', 3);
     title(ax3, 'density perturbation (windowed standard deviation) - time');
     xlabel(ax3, 'time');
-    ylabel(ax3,'density');
+    ylabel(ax3,'density perturbation');
 end
 
 %% fetch omni data: ae_index and sym_h, fetched and interpolated
@@ -162,8 +162,8 @@ if doPlot
 end
 
 %% lag data by 60 days to create 60 new variables for sym_h and ae_index
-[ae_names, satellite1.ae_variables] = buildHistoryVariables('ae_index', ae_index, omni_time, satellite1.time);
-[symh_names, satellite1.symh_variables] = buildHistoryVariables('sym_h', sym_h, omni_time, satellite1.time);
+[ae_names, satellite1.ae_variables] = buildHistoryVariables('ae\_index', ae_index, omni_time, satellite1.time);
+[symh_names, satellite1.symh_variables] = buildHistoryVariables('sym\_h', sym_h, omni_time, satellite1.time);
 satellite1.variable_names = ["mlat", "cos", "sin", "rho", ae_names, symh_names, "density", "log_density", "perturbation", "norm_perturbation"];
 
 [ae_names, satellite2.ae_variables] = buildHistoryVariables('ae_index', ae_index, omni_time, satellite2.time);
