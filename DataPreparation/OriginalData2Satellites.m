@@ -6,7 +6,7 @@ doPlot = false;
 window_idx = 1;
 
 % do we save?
-doSave = true;
+doSave = false;
 
 % save subset?
 saveSubset = true;
