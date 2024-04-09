@@ -6,11 +6,11 @@ doPlot = false;
 window_idx = 1;
 
 % do we save?
-doSave = false;
+doSave = true;
 
 % save subset?
-saveSubset = false;
-fractionDenominator = 100;
+saveSubset = true;
+fractionDenominator = 1000;
 
 %% load original data
 original_data = load('./data/original-data.mat', "-mat", "original_data").original_data;
@@ -227,6 +227,8 @@ matrix1 = [satellite1.mlat', satellite1.cos', satellite1.sin', ...
     satellite1.rho', satellite1.ae_variables, satellite1.symh_variables, ...
     satellite1.density', satellite1.log_density', satellite1.perturbation', ...
     satellite1.normalized_perturbation'];
+idx = find(satellite1.normalized_perturbation >= 0.01 & satellite1.normalized_perturbation <= 0.3);
+matrix1 = matrix1(idx, :);
 nanRows = any(isnan(matrix1), 2);
 matrix1 = matrix1(~nanRows, :);
 satellite1_table = array2table(matrix1, 'VariableNames', satellite1.variable_names);
