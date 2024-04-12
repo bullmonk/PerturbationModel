@@ -9,8 +9,18 @@ cols = satellite1.variable_names(1:end-4);
 cols = [cols 'original' 'predicted'];
 matrix = [input o_perturbation p_perturbation];
 table = array2table(matrix, 'VariableNames', cols);
-clear input o_perturbation p_perturbation satellite1
+clear input o_perturbation p_perturbation satellite1 matrix
 
 %% plot heatmap
 figure
-surf(table.mlat, table.rho, table.predicted);
+scatter(table.mlat, table.rho, 20, table.original, 'filled');
+colorbar;
+xlabel("mlat");
+ylabel("rho");
+title("original predicted normalized perturbation");
+figure
+scatter(table.mlat, table.rho, 20, table.predicted, 'filled');
+colorbar;
+xlabel("mlat");
+ylabel("rho");
+title("predicted predicted normalized perturbation");

@@ -65,6 +65,7 @@ satellite1.yeq = yeq(1:idx);
 satellite1.cos = cs(1:idx);
 satellite1.sin = sn(1:idx);
 satellite1.rho = rho(1:idx);
+satellite1.theta = theta(1:idx);
 satellite1.log_density = log_density(1:idx);
 satellite1.density = density(1:idx);
 satellite1.density_lower_bond = density_lower_bond(1:idx);
@@ -78,6 +79,7 @@ satellite2.mlat = mlat(idx+1:end);
 satellite2.xeq = xeq(idx+1:end);
 satellite2.yeq = yeq(idx+1:end);
 satellite2.rho = rho(idx+1:end);
+satellite2.theta = theta(idx+1:end);
 satellite2.cos = cs(idx+1:end);
 satellite2.sin = sn(idx+1:end);
 satellite2.log_density = log_density(idx+1:end);
@@ -164,11 +166,11 @@ end
 %% lag data by 60 days to create 60 new variables for sym_h and ae_index
 [ae_names, satellite1.ae_variables] = buildHistoryVariables('ae\_index', ae_index, omni_time, satellite1.time);
 [symh_names, satellite1.symh_variables] = buildHistoryVariables('sym\_h', sym_h, omni_time, satellite1.time);
-satellite1.variable_names = ["mlat", "cos", "sin", "rho", ae_names, symh_names, "density", "log_density", "perturbation", "norm_perturbation"];
+satellite1.variable_names = ["mlat", "cos", "sin", "rho", "theta", ae_names, symh_names, "density", "log_density", "perturbation", "norm_perturbation"];
 
 [ae_names, satellite2.ae_variables] = buildHistoryVariables('ae_index', ae_index, omni_time, satellite2.time);
 [symh_names, satellite2.symh_variables] = buildHistoryVariables('sym_h', sym_h, omni_time, satellite2.time);
-satellite2.variable_names = ["mlat", "cos", "sin", "rho", ae_names, symh_names, "density", "log_density", "perturbation", "norm_perturbation"];
+satellite2.variable_names = ["mlat", "cos", "sin", "rho", "theta", ae_names, symh_names, "density", "log_density", "perturbation", "norm_perturbation"];
 
 clear ae_names symh_names
 
@@ -223,8 +225,8 @@ if doPlot
     ylabel(ax3, 'sym\_h');
 end
 
-matrix1 = [satellite1.mlat', satellite1.cos', satellite1.sin', ...
-    satellite1.rho', satellite1.ae_variables, satellite1.symh_variables, ...
+matrix1 = [satellite1.mlat', satellite1.cos', satellite1.sin', satellite1.rho',...
+    satellite1.theta', satellite1.ae_variables, satellite1.symh_variables, ...
     satellite1.density', satellite1.log_density', satellite1.perturbation', ...
     satellite1.normalized_perturbation'];
 idx = find(satellite1.normalized_perturbation >= 0.01 & satellite1.normalized_perturbation <= 0.3);
@@ -233,8 +235,8 @@ nanRows = any(isnan(matrix1), 2);
 matrix1 = matrix1(~nanRows, :);
 satellite1_table = array2table(matrix1, 'VariableNames', satellite1.variable_names);
 
-matrix2 = [satellite2.mlat', satellite2.cos', satellite2.sin', ...
-    satellite2.rho', satellite2.ae_variables, satellite2.symh_variables, ...
+matrix2 = [satellite2.mlat', satellite2.cos', satellite2.sin', satellite2.rho', ...
+    satellite2.theta', satellite2.ae_variables, satellite2.symh_variables, ...
     satellite2.density', satellite2.log_density', satellite2.perturbation', ...
     satellite2.normalized_perturbation'];
 nanRows = any(isnan(matrix2), 2);
