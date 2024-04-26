@@ -13,14 +13,18 @@ clear input o_perturbation p_perturbation satellite1 matrix
 
 %% plot heatmap
 figure
-scatter(table.mlat, table.rho, 20, table.original, 'filled');
+scatter(table.theta/pi*180, table.rho, 20, table.original, 'filled');
 colorbar;
-xlabel("mlat");
+clim([0 200]);
+xlabel("theta");
+xlim([-180 180]);
 ylabel("rho");
 title("original predicted normalized perturbation");
 figure
-scatter(table.mlat, table.rho, 20, table.predicted, 'filled');
+scatter(table.theta/pi*180, table.rho, 20, table.predicted, 'filled');
 colorbar;
-xlabel("mlat");
+clim([0 200]);
+xlabel("theta");
+xlim([-180 180]);
 ylabel("rho");
 title("predicted predicted normalized perturbation");

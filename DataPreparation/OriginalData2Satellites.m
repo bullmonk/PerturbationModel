@@ -2,7 +2,7 @@ close all; clear;
 
 %% run param
 % do we plot?
-doPlot = false;
+doPlot = true;
 window_idx = 1;
 
 % do we save?
@@ -13,27 +13,18 @@ saveSubset = true;
 fractionDenominator = 1000;
 
 %% load original data
-original_data = load('./data/original-data.mat', "-mat", "original_data").original_data;
+data = load('./data/ab_den_envelope.mat', "-mat");
+data.datetime = data.datetime_den;
+data = rmfield(data, "datetime_den");
+
+data = OriginalData2SatellitesHelper(data, OriginalData2SatellitesHelperOperation.Cleanup);
+data = OriginalData2SatellitesHelper(data, OriginalData2SatellitesHelperOperation.GetSatellite, satellite_id=1);
 
 %% original data densities
-log_density = original_data.full_log_den;
-density = 10.^(log_density);
-density_lower_bond = 10.^(original_data.full_log_den_down);
-density_upper_bond = 10.^(original_data.full_log_den_upper);
+% density = 10.^(log_density);
 
 
-% original data time and coordinates that matching the densities
-t = original_data.full_epoches; % time in epoch units
-time = datetime(t, 'convertfrom', 'datenum', 'Format', 'MM/dd/yy HH:mm:ss.SSSSSSSSS');
-mlat = original_data.full_mlat;
-xeq = original_data.full_xeq;
-yeq = original_data.full_yeq;
-
-% coordinates converted to polar coordinate
-[theta, rho] = cart2pol(xeq, yeq);
-cs = cos(theta);
-sn = sin(theta);
-
+%% basic analytic check
 % plot time and its corresponding density data
 if doPlot
     plot_name = "given time series for density data";
@@ -41,12 +32,12 @@ if doPlot
     figure(fig)
     tiledlayout(2, 1)
     ax1 = nexttile;
-    plot(time, '.', 'MarkerSize', 3);
+    plot(data.datetime, '.', 'MarkerSize', 3);
     title(ax1, 'original time data');
     xlabel(ax1, 'index');
     ylabel(ax1, 'time');
     ax2 = nexttile;
-    plot(time, log_density, '.', 'MarkerSize', 3);
+    plot(data.datetime, log10(data.density), '.', 'MarkerSize', 3);
     title(ax2, 'density data - time plot');
     xlabel(ax2, 'time');
     ylabel(ax2,'density');
@@ -134,10 +125,10 @@ if doPlot
 end
 
 %% fetch omni data: ae_index and sym_h, fetched and interpolated
-omni_t = original_data.partial_epoches;
+omni_t = data.partial_epoches;
 omni_time = datetime(omni_t, 'convertfrom', 'datenum', 'Format', 'MM/dd/yy HH:mm:ss.SSSSSSSSS');
-ae_index = original_data.partial_ae_index;
-sym_h = original_data.partial_sym_h;
+ae_index = data.partial_ae_index;
+sym_h = data.partial_sym_h;
 
 % plot and check omini data time
 if doPlot
