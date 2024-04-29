@@ -11,7 +11,9 @@ function[result_data] = OriginalData2SatellitesHelper(original_data, operation, 
             result_data = rmfield(satellite, "rbsp_num");
         case OriginalData2SatellitesHelperOperation.Cleanup
             idx = original_data.density > -1e30;
-            result_data = filterData(original_data, idx);
+            tmp = filterData(original_data, idx);
+            idx = find(diff(tmp.datetime) >= seconds(3));
+            result_data = filterData(tmp, idx);
         case OriginalData2SatellitesHelperOperation.Filter
             result_data = filterData(original_data, filtered_index);
     end
