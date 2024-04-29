@@ -10,17 +10,15 @@ doSave = true;
 
 % save subset?
 saveSubset = true;
-fractionDenominator = 1000;
+fractionDenominator = 100;
 
-%% load original data
+%% load satellite data
 data = load('./data/ab_den_envelope.mat', "-mat");
 data.datetime = data.datetime_den;
 data = rmfield(data, "datetime_den");
 
 data = OriginalData2SatellitesHelper(data, OriginalData2SatellitesHelperOperation.Cleanup);
 data = OriginalData2SatellitesHelper(data, OriginalData2SatellitesHelperOperation.GetSatellite, satellite_id=1);
-
-omni = load('./data/original-data.mat', "-mat", "original_data").original_data;
 
 %% Complementory variables for machine learning model.
 data.density_log10 = log10(data.density);
@@ -57,12 +55,14 @@ if doPlot
 end
 
 %% fetch omni data: ae_index and sym_h, fetched and interpolated
-omni_t = data.partial_epoches;
+omni = load('./data/original-data.mat', "-mat", "original_data").original_data;
+omni_t = omni.partial_epoches;
 omni_time = datetime(omni_t, 'convertfrom', 'datenum', 'Format', 'MM/dd/yy HH:mm:ss.SSSSSSSSS');
-ae_index = data.partial_ae_index;
-sym_h = data.partial_sym_h;
+ae_index = omni.partial_ae_index;
+sym_h = omni.partial_sym_h;
+clear omni
 
-% plot and check omini data time
+%% plot and check omini data time
 if doPlot
     plot_name = "omni data time";
     [fig, window_idx] = getNextFigure(window_idx, plot_name);
@@ -87,106 +87,65 @@ if doPlot
 end
 
 %% lag data by 60 days to create 60 new variables for sym_h and ae_index
-[ae_names, satellite1.ae_variables] = buildHistoryVariables('ae\_index', ae_index, omni_time, satellite1.time);
-[symh_names, satellite1.symh_variables] = buildHistoryVariables('sym\_h', sym_h, omni_time, satellite1.time);
-satellite1.variable_names = ["mlat", "cos", "sin", "rho", "theta", ae_names, symh_names, "density", "log_density", "perturbation", "norm_perturbation"];
-
-[ae_names, satellite2.ae_variables] = buildHistoryVariables('ae_index', ae_index, omni_time, satellite2.time);
-[symh_names, satellite2.symh_variables] = buildHistoryVariables('sym_h', sym_h, omni_time, satellite2.time);
-satellite2.variable_names = ["mlat", "cos", "sin", "rho", "theta", ae_names, symh_names, "density", "log_density", "perturbation", "norm_perturbation"];
+[ae_names, data.ae_variables] = buildHistoryVariables('ae\_index', ae_index, omni_time, data.datetime);
+[symh_names, data.symh_variables] = buildHistoryVariables('sym\_h', sym_h, omni_time, data.datetime);
+data.variable_names = ["mlat", "mlt", "lshell", "rrr", ae_names, symh_names, "density", "density_log10", "perturbation", "perturbation_norm"];
 
 clear ae_names symh_names
 
-% plot and check lagged data correctness.
+%% plot and check lagged data correctness.
 if doPlot
-    % satellite 1 sym_h
+    % symh plot
     plot_name = "first 3 lagged sym_h data";
     [fig, ~] = getNextFigure(window_idx, plot_name);
     figure(fig)
     tiledlayout(3, 1)
     ax1 = nexttile;
-    plot(satellite1.time, satellite1.symh_variables(:, 2)', '.', 'MarkerSize', 3);
+    plot(data.datetime, data.symh_variables(:, 2)', '.', 'MarkerSize', 3);
     title(ax1, 'sym\_h data lagged by 5 mins and align with density data');
     xlabel(ax1, 'index');
-    xlim([satellite1.time(1) satellite1.time(1) + minutes(60)]);
+    xlim([data.datetime(1) data.datetime(1) + minutes(60)]);
+    ylim([-20 -10]);
     ylabel(ax1, 'sym\_h');   
-    ax1 = nexttile;
-    plot(satellite1.time, satellite1.symh_variables(:, 3)', '.', 'MarkerSize', 3);
-    title(ax1, 'sym\_h data lagged by 10 mins and align with density data');
-    xlabel(ax1, 'index');
-    xlim([satellite1.time(1) satellite1.time(1) + minutes(60)]);
-    ylabel(ax1, 'sym\_h');
     ax2 = nexttile;
-    plot(satellite1.time, satellite1.symh_variables(:, 4)', '.', 'MarkerSize', 3);
-    title(ax2, 'sym\_h data lagged by 15 mins and align with density data');
+    plot(data.datetime, data.symh_variables(:, 3)', '.', 'MarkerSize', 3);
+    title(ax2, 'sym\_h data lagged by 10 mins and align with density data');
     xlabel(ax2, 'index');
-    xlim([satellite1.time(1) satellite1.time(1) + minutes(60)]);
+    xlim([data.datetime(1) data.datetime(1) + minutes(60)]);
     ylabel(ax2, 'sym\_h');
-
-    % satellite 2 sym_h
-    plot_name = "first 3 lagged sym_h data";
-    [fig, ~] = getNextFigure(window_idx, plot_name);
-    figure(fig)
-    tiledlayout(3, 1)
-    ax1 = nexttile;
-    plot(satellite1.time, satellite1.symh_variables(:, 2)', '.', 'MarkerSize', 3);
-    title(ax1, 'sym\_h data lagged by 5 mins and align with density data');
-    xlabel(ax1, 'index');
-    xlim([satellite1.time(1) satellite1.time(1) + minutes(60)]);
-    ylabel(ax1, 'sym\_h');   
-    ax1 = nexttile;
-    plot(satellite1.time, satellite1.symh_variables(:, 3)', '.', 'MarkerSize', 3);
-    title(ax1, 'sym\_h data lagged by 10 mins and align with density data');
-    xlabel(ax1, 'index');
-    xlim([satellite1.time(1) satellite1.time(1) + minutes(60)]);
-    ylabel(ax1, 'sym\_h');
-    ax2 = nexttile;
-    plot(satellite1.time, satellite1.symh_variables(:, 4)', '.', 'MarkerSize', 3);
-    title(ax2, 'sym\_h data lagged by 15 mins and align with density data');
-    xlabel(ax2, 'index');
-    xlim([satellite1.time(1) satellite1.time(1) + minutes(60)]);
-    ylabel(ax2, 'sym\_h');
+    ylim([-20 -10]);
+    ax3 = nexttile;
+    plot(data.datetime, data.symh_variables(:, 4)', '.', 'MarkerSize', 3);
+    title(ax3, 'sym\_h data lagged by 15 mins and align with density data');
+    xlabel(ax3, 'index');
+    xlim([data.datetime(1) data.datetime(1) + minutes(60)]);
+    ylim([-20 -10]);
+    ylabel(ax3, 'sym\_h');
 end
 
-matrix1 = [satellite1.mlat', satellite1.cos', satellite1.sin', satellite1.rho',...
-    satellite1.theta', satellite1.ae_variables, satellite1.symh_variables, ...
-    satellite1.density', satellite1.log_density', satellite1.perturbation', ...
-    satellite1.normalized_perturbation'];
-idx = find(satellite1.normalized_perturbation >= 0.01 & satellite1.normalized_perturbation <= 0.3);
-matrix1 = matrix1(idx, :);
-nanRows = any(isnan(matrix1), 2);
-matrix1 = matrix1(~nanRows, :);
-satellite1_table = array2table(matrix1, 'VariableNames', satellite1.variable_names);
+%% build table
+matrix = [data.mlat', data.mlt', data.lshell', data.rrr',...
+    data.ae_variables, data.symh_variables, ...
+    data.density', data.density_log10', data.perturbation', ...
+    data.normalized_perturbation'];
+idx = find(data.normalized_perturbation >= 0.02 & data.normalized_perturbation <= 0.3);
+matrix = matrix(idx, :);
+nanRows = any(isnan(matrix), 2);
+matrix = matrix(~nanRows, :);
+tbl = array2table(matrix, 'VariableNames', data.variable_names);
 
-matrix2 = [satellite2.mlat', satellite2.cos', satellite2.sin', satellite2.rho', ...
-    satellite2.theta', satellite2.ae_variables, satellite2.symh_variables, ...
-    satellite2.density', satellite2.log_density', satellite2.perturbation', ...
-    satellite2.normalized_perturbation'];
-nanRows = any(isnan(matrix2), 2);
-matrix2 = matrix2(~nanRows, :);
-satellite2_table = array2table(matrix2, 'VariableNames', satellite2.variable_names);
-
+%% subset
 if saveSubset
-    sz = size(matrix1, 1);
+    sz = size(matrix, 1);
     row_indexes = randperm(sz, int32(sz/fractionDenominator));
-    subtable = satellite1_table(row_indexes, :);
-    satellite1_table = subtable;
+    subtable = tbl(row_indexes, :);
+    tbl = subtable;
     clear sz row_indexes subtable
-
-    sz = size(matrix2, 1);
-    row_indexes = randperm(sz, int32(sz/fractionDenominator));
-    subtable = satellite2_table(row_indexes, :);
-    satellite2_table = subtable;
-    clear sz row_indexes subtable
-
 end
 
 %% save
 if doSave
     save_path = '../ModelTraining/data/';
-    file1 = [save_path 'satellite1_' num2str(fractionDenominator) '.csv'];
-    file2 = [save_path 'satellite2_' num2str(fractionDenominator) '.csv'];
-
-    writetable(satellite1_table, file1, 'WriteVariableNames', true);
-    writetable(satellite2_table, file2, 'WriteVariableNames', true);
+    file = [save_path 'satellite_' num2str(fractionDenominator) '.csv'];
+    writetable(tbl, file, 'WriteVariableNames', true);
 end
