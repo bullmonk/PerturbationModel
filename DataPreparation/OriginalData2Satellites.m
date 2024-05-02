@@ -2,7 +2,7 @@ close all; clear;
 
 %% run param
 % do we plot?
-doPlot = true;
+doPlot = false;
 window_idx = 1;
 
 % do we save?
@@ -19,6 +19,9 @@ data = rmfield(data, "datetime_den");
 
 data = OriginalData2SatellitesHelper(data, OriginalData2SatellitesHelperOperation.Cleanup);
 data = OriginalData2SatellitesHelper(data, OriginalData2SatellitesHelperOperation.GetSatellite, satellite_id=1);
+theta = (data.mlt / 24) * 2 * pi;
+data.cos = cos(theta);
+data.sin = sin(theta);
 
 %% Complementory variables for machine learning model.
 data.density_log10 = log10(data.density);
@@ -89,7 +92,7 @@ end
 %% lag data by 60 days to create 60 new variables for sym_h and ae_index
 [ae_names, data.ae_variables] = buildHistoryVariables('ae\_index', ae_index, omni_time, data.datetime);
 [symh_names, data.symh_variables] = buildHistoryVariables('sym\_h', sym_h, omni_time, data.datetime);
-data.variable_names = ["mlat", "mlt", "lshell", "rrr", ae_names, symh_names, "density", "density_log10", "perturbation", "perturbation_norm"];
+data.variable_names = ["mlat", "cos", "sin", "lshell", "rrr", ae_names, symh_names, "density", "density_log10", "perturbation", "perturbation_norm"];
 
 clear ae_names symh_names
 
@@ -124,12 +127,12 @@ if doPlot
 end
 
 %% build table
-matrix = [data.mlat', data.mlt', data.lshell', data.rrr',...
+matrix = [data.mlat', data.cos', data.sin', data.lshell', data.rrr',...
     data.ae_variables, data.symh_variables, ...
     data.density', data.density_log10', data.perturbation', ...
     data.normalized_perturbation'];
-idx = find(data.normalized_perturbation >= 0.02 & data.normalized_perturbation <= 0.3);
-matrix = matrix(idx, :);
+% idx = find(data.normalized_perturbation >= 0.02 & data.normalized_perturbation <= 0.3);
+% matrix = matrix(idx, :);
 nanRows = any(isnan(matrix), 2);
 matrix = matrix(~nanRows, :);
 tbl = array2table(matrix, 'VariableNames', data.variable_names);
@@ -146,6 +149,31 @@ end
 %% save
 if doSave
     save_path = '../ModelTraining/data/';
-    file = [save_path 'satellite_' num2str(fractionDenominator) '.csv'];
+    file = [save_path 'satellite_density_' num2str(fractionDenominator) '.csv'];
     writetable(tbl, file, 'WriteVariableNames', true);
 end
+
+%% Create color map data.
+lshell = 2:0.1:6.5;
+mlt = 0:1:24;
+coord = combvec(lshell, mlt);
+len = length(coord); % total number of rows in our test input.
+M = median(tbl, 1); % median of all columns.
+test_input = repmat(M, len, 1);
+test_input.lshell = coord(1,:)';
+test_input.cos = cos(coord(2,:) / 24 * 2 * pi)';
+test_input.sin = sin(coord(2,:) / 24 * 2 * pi)';
+
+% file = [save_path 'testinput.csv'];
+% writetable(test_input, file, 'WriteRowNames', true);
+
+%% load predicted result.
+red = readtable("data/OutputForNormPlot.csv");
+X = reshape(coord(1,:), length(lshell), length(mlt));
+Y = reshape(coord(2,:), length(lshell), length(mlt));
+Z = reshape(red.perturbation_norm, length(lshell), length(mlt));
+figure
+surf(X,Y,Z);
+xlabel('lshell');
+ylabel('mlt');
+zlabel('perturbation');
