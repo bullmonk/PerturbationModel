@@ -2,7 +2,7 @@ close all; clear;
 
 %% run param
 % do we plot?
-doPlot = false;
+doPlot = true;
 window_idx = 1;
 
 % do we save?
@@ -92,7 +92,7 @@ end
 %% lag data by 60 days to create 60 new variables for sym_h and ae_index
 [ae_names, data.ae_variables] = buildHistoryVariables('ae\_index', ae_index, omni_time, data.datetime);
 [symh_names, data.symh_variables] = buildHistoryVariables('sym\_h', sym_h, omni_time, data.datetime);
-data.variable_names = ["mlat", "cos", "sin", "lshell", "rrr", ae_names, symh_names, "density", "density_log10", "perturbation", "perturbation_norm"];
+data.variable_names = ["mlat", "cos", "sin", "lshell", ae_names, symh_names, "density", "density_log10", "perturbation", "perturbation_norm"];
 
 clear ae_names symh_names
 
@@ -127,7 +127,7 @@ if doPlot
 end
 
 %% build table
-matrix = [data.mlat', data.cos', data.sin', data.lshell', data.rrr',...
+matrix = [data.mlat', data.cos', data.sin', data.lshell',...
     data.ae_variables, data.symh_variables, ...
     data.density', data.density_log10', data.perturbation', ...
     data.normalized_perturbation'];
@@ -164,16 +164,20 @@ test_input.lshell = coord(1,:)';
 test_input.cos = cos(coord(2,:) / 24 * 2 * pi)';
 test_input.sin = sin(coord(2,:) / 24 * 2 * pi)';
 
-% file = [save_path 'testinput.csv'];
-% writetable(test_input, file, 'WriteRowNames', true);
+file = [save_path 'testinput.csv'];
+writetable(test_input, file, 'WriteRowNames', true);
 
 %% load predicted result.
-red = readtable("data/OutputForNormPlot.csv");
+red = readtable("data/OutputForDensityPlot.csv");
 X = reshape(coord(1,:), length(lshell), length(mlt));
 Y = reshape(coord(2,:), length(lshell), length(mlt));
-Z = reshape(red.perturbation_norm, length(lshell), length(mlt));
+Z = reshape(red.density, length(lshell), length(mlt));
 figure
-surf(X,Y,Z);
-xlabel('lshell');
-ylabel('mlt');
-zlabel('perturbation');
+imagesc(mlt, lshell, Z);
+xlabel('mlt');
+ylabel('lshell');
+c = colorbar;
+c.Label.FontSize = 30;
+c.Label.String = 'log_{10}(Density)';
+clim([0 4]);
+colormap("jet");

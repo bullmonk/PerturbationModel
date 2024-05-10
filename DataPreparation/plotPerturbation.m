@@ -16,7 +16,7 @@ function [windowIdx] = plotPerturbation(windowIdx, perturbation, normPerturbatio
     ylabel(ax2, 'bin count');    
     ax3 = nexttile;
     plot(rho, normPerturbation, '.', 'MarkerSize', 3);
-    title(ax3, 'normalized perturbation - rho');
-    xlabel(ax3, 'rho');
+    title(ax3, 'normalized perturbation - lshell');
+    xlabel(ax3, 'lshell');
     ylabel(ax3,'normalized perturbation');
 end
