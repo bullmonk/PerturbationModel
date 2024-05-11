@@ -23,6 +23,8 @@ theta = (data.mlt / 24) * 2 * pi;
 data.cos = cos(theta);
 data.sin = sin(theta);
 
+clear theta
+
 %% Complementory variables for machine learning model.
 data.density_log10 = log10(data.density);
 [data.perturbation, data.background] = calcPerturbation(data.density, data.datetime, minutes(2), 10);
@@ -94,7 +96,7 @@ end
 [symh_names, data.symh_variables] = buildHistoryVariables('sym\_h', sym_h, omni_time, data.datetime);
 data.variable_names = ["mlat", "cos", "sin", "lshell", ae_names, symh_names, "density", "density_log10", "perturbation", "perturbation_norm"];
 
-clear ae_names symh_names
+clear ae_names symh_names omni_t omni_time sym_h ae_index
 
 %% plot and check lagged data correctness.
 if doPlot
