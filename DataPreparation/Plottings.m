@@ -1,8 +1,8 @@
-windowIdx = 1;
+function[] = Plottings()
 
-%% load satellites data
-satellite1 = load('./data/satellite1.mat', "-mat", "satellite1").satellite1;
-satellite2 = load('./data/satellite2.mat', "-mat", "satellite2").satellite2;
+%load data.
+data = readtable("../data/satellite_100.csv");
+
 
 %% plot default: 2 mins window 10 points
 [windowIdx] = plotPerturbation(windowIdx, satellite1.perturbation, satellite1.normalized_perturbation, satellite1.rho, "2 mins 10 points");
