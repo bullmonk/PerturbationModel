@@ -13,7 +13,7 @@ saveSubset = true;
 fractionDenominator = 100;
 
 %% load satellite data
-data = load('./data/ab_den_envelope.mat', "-mat");
+data = load('../data/ab_den_envelope.mat', "-mat");
 data.datetime = data.datetime_den;
 data = rmfield(data, "datetime_den");
 
@@ -150,7 +150,7 @@ end
 
 %% save
 if doSave
-    save_path = '../ModelTraining/data/';
+    save_path = '../data/';
     file = [save_path 'satellite_density_' num2str(fractionDenominator) '.csv'];
     writetable(tbl, file, 'WriteVariableNames', true);
 end

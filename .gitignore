@@ -1,5 +1,5 @@
-**/original-data.mat
 **/data/*
+**/dump/*
 **/.DS_Store
 **/*.asv
 **/*.csv

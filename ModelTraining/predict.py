@@ -38,12 +38,12 @@ def main():
     target_standardization_enabled = args.disableTargetStand
 
     # load input data.
-    input = pd.read_csv(original_data)
-    mdl = load(f'''{target_variable_name}_netRegressor.joblib''')
-    xscaler = load(f'''{target_variable_name}_xscaler.joblib''')
+    input = pd.read_csv(f'''../data/{original_data}''')
+    mdl = load(f'''../dump/{target_variable_name}_netRegressor.joblib''')
+    xscaler = load(f'''../dump/{target_variable_name}_xscaler.joblib''')
     yscaler = None
     if target_standardization_enabled:
-        yscaler = load(f'''{target_variable_name}_yscaler.joblib''')
+        yscaler = load(f'''../dump/{target_variable_name}_yscaler.joblib''')
 
     # extract features
     X = input[input.columns[feature_column_indicies]]
@@ -57,7 +57,7 @@ def main():
         y_out = yscaler.inverse_transform(y_out).flatten()
 
     # dump result
-    pd.DataFrame(y_out).to_csv(f'''predicted_{target_variable_name}.csv''', index=False)
+    pd.DataFrame(y_out).to_csv(f'''../data/predicted_{target_variable_name}.csv''', index=False)
 
     return
 

@@ -39,7 +39,7 @@ def main():
     target_standardization_enabled = args.disableTargetStand
 
     # load data
-    df = pd.read_csv(original_data)
+    df = pd.read_csv(f'''../data/{original_data}''')
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
     df=df.dropna()
 
@@ -76,10 +76,10 @@ def main():
     y_out = netRegressor.predict(X_test)
 
     # dump model
-    dump(netRegressor, f'''{target_variable_name}_netRegressor.joblib''')
-    dump(xscaler, f'''{target_variable_name}_xscaler.joblib''')
+    dump(netRegressor, f'''../dump/{target_variable_name}_netRegressor.joblib''')
+    dump(xscaler, f'''../dump/{target_variable_name}_xscaler.joblib''')
     if target_standardization_enabled:
-        dump(yscaler, f'''{target_variable_name}_yscaler.joblib''')
+        dump(yscaler, f'''../dump/{target_variable_name}_yscaler.joblib''')
 
     r2 = r2_score(y_test, y_out)
     print(f'''model r2 score on test data is: {r2}''')
