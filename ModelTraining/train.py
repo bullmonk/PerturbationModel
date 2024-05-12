@@ -15,7 +15,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split, validation_curve, GridSearchCV, learning_curve
 from sklearn.metrics import mean_squared_error,r2_score
 from skorch import NeuralNetRegressor
-import seaborn as sns
 import argparse
 from joblib import dump
 
