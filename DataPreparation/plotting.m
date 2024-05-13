@@ -3,14 +3,17 @@ function[wIndex] = plotting(wIndex, pOption, trainingData, predictedData)
 ip = inputParser;
 addRequired(ip, 'wIndex');
 addRequired(ip, 'pOption');
-addRequired(ip, 'trainingData');
-addOptional(ip, 'predictedData');
+addOptional(ip, 'trainingData', 'satellite_100.csv');
+addOptional(ip, 'predictedData', 'predicted_density_log10.csv');
 
 
 %load data.
-data = readtable(['../data/' trainingData]);
+predicted = nan;
+data = nan;
 if pOption == plottingOption.densityLshellMlt
     predicted = readtable(['../data/' predictedData]);
+else
+    data = readtable(['../data/' trainingData]);
 end
 
 switch pOption
@@ -89,8 +92,8 @@ switch pOption
         % coord = combvec(lshell, mlt);
         % X = reshape(coord(1,:), length(lshell), length(mlt));
         % Y = reshape(coord(2,:), length(lshell), length(mlt));
-        Z = reshape(predicted(:,1), length(lshell), length(mlt));
-        [fig, ~] = getNextFigure(window_idx, "value - mlt - lshell");
+        Z = reshape(predicted{2:end,1}, length(lshell), length(mlt));
+        [fig, ~] = getNextFigure(wIndex, "value - mlt - lshell");
         figure(fig)
         imagesc(mlt, lshell, Z);
         xlabel('mlt');
