@@ -1,4 +1,4 @@
-function[result_data] = OriginalData2SatellitesHelper(original_data, operation, filtered_index, satellite_id)
+function[result_data] = prepareTrainingDataHelper(original_data, operation, filtered_index, satellite_id)
     ip = inputParser;
     addRequired(ip, 'original_data');
     addRequired(ip, 'operation');
@@ -6,15 +6,15 @@ function[result_data] = OriginalData2SatellitesHelper(original_data, operation, 
     addOptional(ip, 'satellite_id', 0)
 
     switch operation
-        case OriginalData2SatellitesHelperOperation.GetSatellite
+        case prepareTrainingDataHelperOperation.GetSatellite
             satellite = getSatellite(original_data, satellite_id);
             result_data = rmfield(satellite, "rbsp_num");
-        case OriginalData2SatellitesHelperOperation.Cleanup
+        case prepareTrainingDataHelperOperation.Cleanup
             idx = original_data.density > -1e30;
             tmp = filterData(original_data, idx);
             idx = find(diff(tmp.datetime) >= seconds(3));
             result_data = filterData(tmp, idx);
-        case OriginalData2SatellitesHelperOperation.Filter
+        case prepareTrainingDataHelperOperation.Filter
             result_data = filterData(original_data, filtered_index);
     end
 end

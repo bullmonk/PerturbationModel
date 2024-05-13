@@ -1,4 +1,4 @@
-function [] = OriginalData2Satellites(dataBalance, saveSubset, fractionDenominator)
+function [] = prepareTrainingData(dataBalance, saveSubset, fractionDenominator)
     ip = inputParser;
     addRequired(ip, 'saveSubset');
     addRequired(ip, 'dataBalance');

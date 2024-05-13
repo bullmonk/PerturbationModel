@@ -1,4 +1,4 @@
-classdef OriginalData2SatellitesHelperOperation
+classdef prepareTrainingDataHelperOperation
     enumeration
         GetSatellite,
         Cleanup, % remove duplicated time, and remove -Inf densities
