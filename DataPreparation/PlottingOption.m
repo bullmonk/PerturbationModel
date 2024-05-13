@@ -1,4 +1,4 @@
-classdef PlottingOption
+classdef plottingOption
     enumeration
         densityTime,
         perturbationTime,

@@ -18,3 +18,4 @@ fprintf('The model performance is %f on test data.', cmdout);
 system('python3 predict.py --iData=featuresForModelPlot.csv --iIndicies=0:125 --target=density_log10 --disableTargetStand');
 
 %% Plot output vs lshell vs mlt.
+plotting(1, plottingOption.densityLshellMlt, 'satellite_100.csv', 'featuresForModelPlot.csv');

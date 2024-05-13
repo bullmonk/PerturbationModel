@@ -1,19 +1,20 @@
-function[wIndex] = Plottings(wIndex, pOption, predictedData)
+function[wIndex] = plotting(wIndex, pOption, trainingData, predictedData)
 
 ip = inputParser;
 addRequired(ip, 'wIndex');
 addRequired(ip, 'pOption');
+addRequired(ip, 'trainingData');
 addOptional(ip, 'predictedData');
 
 
 %load data.
-data = readtable("../data/satellite_100.csv");
-if pOption == PlottingOption.densityLshellMlt
-    predicted = readtable(['../data/' predictedData '.csv']);
+data = readtable(['../data/' trainingData]);
+if pOption == plottingOption.densityLshellMlt
+    predicted = readtable(['../data/' predictedData]);
 end
 
 switch pOption
-    case PlottingOption.densityTime
+    case plottingOption.densityTime
         plot_name = "given time series for density data";
         [fig, ~] = getNextFigure(wIndex, plot_name);
         figure(fig)
@@ -28,7 +29,7 @@ switch pOption
         title(ax1, 'log_{10} density data - time plot');
         xlabel(ax1, 'time');
         ylabel(ax1,'density');
-    case PlottingOption.perturbationTime
+    case plottingOption.perturbationTime
         plot_name = "perturbation plots";
         [fig, ~] = getNextFigure(wIndex, plot_name);
         figure(fig)
@@ -36,7 +37,7 @@ switch pOption
         title('density perturbation (windowed standard deviation) - time');
         xlabel('time');
         ylabel('density perturbation');
-    case PlottingOption.omni
+    case plottingOption.omni
         plot_name = "omni data time";
         [fig, ~] = getNextFigure(wIndex, plot_name);
         figure(fig)
@@ -56,7 +57,7 @@ switch pOption
         title(ax2, 'sym\_h data align with original time series');
         xlabel(ax2, 'time');
         ylabel(ax2, 'sym\_h');
-    case PlottingOption.cadence
+    case plottingOption.cadence
         plot_name = "first 3 lagged sym_h data";
         [fig, ~] = getNextFigure(window_idx, plot_name);
         figure(fig)
@@ -82,7 +83,7 @@ switch pOption
         xlim([data.datetime(1) data.datetime(1) + minutes(60)]);
         ylim([-20 -10]);
         ylabel(ax3, 'sym\_h');
-    case PlottingOption.densityLshellMlt
+    case plottingOption.densityLshellMlt
         lshell = 2:0.1:6.5;
         mlt = 0:1:24;
         % coord = combvec(lshell, mlt);
