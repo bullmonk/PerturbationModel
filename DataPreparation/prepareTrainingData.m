@@ -12,8 +12,8 @@ function [] = prepareTrainingData(dataBalance, saveSubset, fractionDenominator)
     data = rmfield(data, "datetime_den"); % change field name from datetime_den to datetime.
     
     % initial data cleaning.
-    data = OriginalData2SatellitesHelper(data, OriginalData2SatellitesHelperOperation.Cleanup);
-    data = OriginalData2SatellitesHelper(data, OriginalData2SatellitesHelperOperation.GetSatellite, satellite_id=1);
+    data = prepareTrainingDataHelper(data, prepareTrainingDataHelperOperation.Cleanup);
+    data = prepareTrainingDataHelper(data, prepareTrainingDataHelperOperation.GetSatellite, satellite_id=1);
     theta = (data.mlt / 24) * 2 * pi;
     data.cos = cos(theta);
     data.sin = sin(theta);
