@@ -61,7 +61,7 @@ function [] = prepareTrainingData(dataBalance, saveSubset, fractionDenominator)
         clear sz row_indexes subtable
     end
 
-    file = [data_path 'satellite_density_' num2str(fractionDenominator) '.csv'];
+    file = [data_path 'satellite_' num2str(fractionDenominator) '.csv'];
     writetable(tbl, file, 'WriteVariableNames', true);
 
     % Create feature data for model validation plot.
