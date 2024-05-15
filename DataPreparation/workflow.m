@@ -4,7 +4,7 @@
 % (1) satellite_###.csv, where ### stand for the fraction to total data.
 % (2) featuresForModelPlot.csv, which is used for ploting density or
 % perturbation versus mlt and lshell.
-prepareTrainingData(true, true);
+prepareTrainingData(true, true, 'fractionDenominator', 100);
 
 %% plot actual vs predicted.
 plotting(1, plottingOption.modelComparison, 'cmpData', 'density_log10_cmp_plot_data.csv');
@@ -38,4 +38,4 @@ system('cd ../ModelTraining;python3 predict.py --iData=featuresForModelPlot.csv 
 end
 
 %% Plot output vs lshell vs mlt.
-plotting(1, plottingOption.densityLshellMlt, 'predictedData', 'predicted_density_log10.csv');
+plotting(1, plottingOption.colormap, 'predictedData', 'predicted_perturbation.csv', 'zName', 'Perturbation');

@@ -57,13 +57,13 @@ function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
 
     if saveSubset
         sz = size(matrix, 1);
-        row_indexes = randperm(sz, int32(sz/fractionDenominator));
+        row_indexes = randperm(sz, int32(sz/ip.Results.fractionDenominator));
         subtable = tbl(row_indexes, :);
         tbl = subtable;
         clear sz row_indexes subtable
     end
 
-    file = [data_path 'satellite_' num2str(fractionDenominator) '.csv'];
+    file = [data_path 'satellite_' num2str(ip.Results.fractionDenominator) '.csv'];
     writetable(tbl, file, 'WriteVariableNames', true);
 
     % Create feature data for model validation plot.

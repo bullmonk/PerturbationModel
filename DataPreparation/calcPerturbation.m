@@ -29,11 +29,13 @@ function [perturbation, background] = calcPerturbation(density, time, windowSize
     dgrp(toDelete) = NaN;
 
 
-    perturbation = std(dgrp, 0, 1, "omitmissing");
-    background = mean(dgrp, 1, "omitmissing");
+    %perturbation = std(dgrp, 0, 1, "omitmissing");
+    %background = mean(dgrp, 1, "omitmissing");
+    perturbation = std(dgrp, 0, 1, "omitnan");
+    background = mean(dgrp, 1, "omitnan");
     % apply valid group count, only window with more than validGroupCount
     % data will get perturbation calculated.
-    omitted = sum(~isnan(perturbation), 1) > validGroupCount;
+    omitted = sum(~isnan(dgrp), 1) < validGroupCount;
     perturbation(omitted) = NaN;
     background(omitted) = NaN;
 end

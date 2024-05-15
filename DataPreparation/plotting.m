@@ -3,6 +3,7 @@ function[wIndex] = plotting(wIndex, pOption, varargin)
     ip = inputParser;
     addRequired(ip, 'wIndex');
     addRequired(ip, 'pOption');
+    addParameter(ip, 'zName', 'log_{10} density');
     addParameter(ip, 'trainingData', 'satellite_100.csv');
     addParameter(ip, 'predictedData', 'predicted_density_log10.csv');
     addParameter(ip, 'cmpData', 'density_log10_cmp_plot_data.csv');
@@ -14,7 +15,7 @@ function[wIndex] = plotting(wIndex, pOption, varargin)
     data = nan;
     cmp = nan;
     
-    if pOption == plottingOption.densityLshellMlt
+    if pOption == plottingOption.colormap
         predicted = readtable(['../data/' ip.Results.predictedData]);
     elseif pOption == plottingOption.modelComparison
         cmp = readtable(['../data/' ip.Results.cmpData]);
@@ -94,23 +95,22 @@ function[wIndex] = plotting(wIndex, pOption, varargin)
             xlim([data.datetime(1) data.datetime(1) + minutes(60)]);
             ylim([-20 -10]);
             ylabel(ax3, 'sym\_h');
-        case plottingOption.densityLshellMlt
+        case plottingOption.colormap
             lshell = 2:0.1:6.5;
             mlt = 0:1:24;
             % coord = combvec(lshell, mlt);
             % X = reshape(coord(1,:), length(lshell), length(mlt));
             % Y = reshape(coord(2,:), length(lshell), length(mlt));
             Z = reshape(predicted{2:end,1}, length(lshell), length(mlt));
-            [fig, ~] = getNextFigure(wIndex, "value - mlt - lshell", 'wCut', 2, 'hCut', 2);
+            [fig, ~] = getNextFigure(wIndex, [ip.Results.zName ' - mlt - lshell'], 'wCut', 2, 'hCut', 2);
             figure(fig)
-	      setfigpos(gcf,[1 1 10 10])
             imagesc(mlt, lshell, Z);
             xlabel('mlt');
             ylabel('lshell');
             c = colorbar;
             c.Label.FontSize = 30;
-            c.Label.String = 'log_{10}(Density)';
-            caxis([0 4]);
+            c.Label.String = ip.Results.zName;
+            caxis([min(Z, [], "all") max(Z, [], "all")]);
             colormap("jet");
         case plottingOption.modelComparison
             plot_name = 'Model Output Comparison';
