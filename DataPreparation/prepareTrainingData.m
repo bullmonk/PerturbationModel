@@ -1,8 +1,10 @@
-function [] = prepareTrainingData(dataBalance, saveSubset, fractionDenominator)
+function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
     ip = inputParser;
-    addRequired(ip, 'saveSubset');
     addRequired(ip, 'dataBalance');
-    addOptional(ip, 'fractionDenominator', 100);
+    addRequired(ip, 'saveSubset');
+    addParameter(ip, 'fractionDenominator', 10000);
+    parse(ip, dataBalance, saveSubset, varargin{:});
+
 
     data_path = '../data/';
 
