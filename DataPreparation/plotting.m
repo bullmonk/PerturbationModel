@@ -1,19 +1,27 @@
-function[wIndex] = plotting(wIndex, pOption, trainingData, predictedData)
+function[wIndex] = plotting(wIndex, pOption, varargin)
 
 ip = inputParser;
 addRequired(ip, 'wIndex');
 addRequired(ip, 'pOption');
-addOptional(ip, 'trainingData', 'satellite_100.csv');
-addOptional(ip, 'predictedData', 'predicted_density_log10.csv');
-
+addParameter(ip, 'trainingData', 'satellite_100.csv');
+addParameter(ip, 'predictedData', 'predicted_density_log10.csv');
+addParameter(ip, 'cmpData', 'density_log10_cmp_plot_data.csv');
+addParameter(ip, 'featureImportancesData', 'density_log10_features_rank.csv');
+parse(ip, wIndex, pOption, varargin{:});
 
 %load data.
 predicted = nan;
 data = nan;
+cmp = nan;
+
 if pOption == plottingOption.densityLshellMlt
-    predicted = readtable(['../data/' predictedData]);
+    predicted = readtable(['../data/' ip.Results.predictedData]);
+elseif pOption == plottingOption.modelComparison
+    cmp = readtable(['../data/' ip.Results.cmpData]);
+elseif pOption == plottingOption.featureRank
+    featureImpotances = readtable(['../data/' ip.Results.featureImportancesData]);
 else
-    data = readtable(['../data/' trainingData]);
+    data = readtable(['../data/' ip.Results.trainingData]);
 end
 
 switch pOption
@@ -95,12 +103,33 @@ switch pOption
         Z = reshape(predicted{2:end,1}, length(lshell), length(mlt));
         [fig, ~] = getNextFigure(wIndex, "value - mlt - lshell");
         figure(fig)
+	  setfigpos(gcf,[1 1 10 10])
         imagesc(mlt, lshell, Z);
         xlabel('mlt');
         ylabel('lshell');
         c = colorbar;
         c.Label.FontSize = 30;
         c.Label.String = 'log_{10}(Density)';
-        clim([0 4]);
+        caxis([0 4]);
         colormap("jet");
+    case plottingOption.modelComparison
+        plot_name = 'Model Output Comparison';
+        [fig, ~] = getNextFigure(wIndex, plot_name);
+        figure(fig)
+        plot(cmp.actual, cmp.predicted, '.', 'MarkerSize', 3);
+        xlabel('actual', 'FontSize', 30);
+        ylabel('predicted', 'FontSize', 30);
+        hold on
+        x = min(cmp.actual): 0.1: max(cmp.actual);
+        plot(x, x, '-r');
+        hold off
+    case plottingOption.featureRank
+        featureImpotances(featureImpotances{:, 2} < 0, :) = [];
+        sorted = sortrows(featureImpotances, 2);
+        plot_name = 'Feature Importance Rank';
+        [fig, ~] = getNextFigure(wIndex, plot_name, 'wCut', 2, 'hCut', 1);
+        figure(fig)
+        barh(sorted.features, sorted.importances);
+        
 end
+saveeps('test.png')

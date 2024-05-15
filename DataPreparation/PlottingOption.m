@@ -5,6 +5,8 @@ classdef plottingOption
         perturbationWindowTest,
         omni,
         cadence,
-        densityLshellMlt
+        densityLshellMlt,
+        modelComparison,
+        featureRank
     end
 end

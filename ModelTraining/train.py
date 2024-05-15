@@ -2,21 +2,22 @@ import os
 import pandas as pd
 import numpy as np
 import copy
-
+import argparse
 import torch
+import matplotlib.pyplot as plt
+
 from torch import nn, optim
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-
-import matplotlib.pyplot as plt
+from joblib import dump
 from sklearn import preprocessing
+from skorch import NeuralNetRegressor
+
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split, validation_curve, GridSearchCV, learning_curve
 from sklearn.metrics import mean_squared_error,r2_score
-from skorch import NeuralNetRegressor
-import argparse
-from joblib import dump
+from sklearn.inspection import permutation_importance
 
 def main():
 
@@ -27,6 +28,7 @@ def main():
     parser.add_argument("--iIndicies", type=str, default="0:9", help="Numerical Array, referencing the indicies of columns for trainning input.")
     parser.add_argument("--target", type=str, default="norm_perturbation", help="Name of the target variable column in the original data.")
     parser.add_argument("--disableTargetStand", action='store_false', help="Disable target standardization before and after training.")
+    parser.add_argument("--saveFeatureRank", action='store_true', help="save feature importance in a csv file.")
 
     args = parser.parse_args()
 
@@ -37,6 +39,7 @@ def main():
     feature_column_indicies = range(int(s), int(e) + 1)
     target_variable_name = args.target
     target_standardization_enabled = args.disableTargetStand
+    calculate_feature_importances = args.saveFeatureRank
 
     # load data
     df = pd.read_csv(f'''../data/{original_data}''')
@@ -83,7 +86,20 @@ def main():
 
     r2 = r2_score(y_test, y_out)
     print(f'''model r2 score on test data is: {r2}''')
-    return r2
+
+    # save data for comparison plot
+    cmp = pd.DataFrame({'actual': y_test.numpy().flatten(), 'predicted': y_out.flatten()})
+    cmp.to_csv(f'''../data/{target_variable_name}_cmp_plot_data.csv''', index=False)
+
+    # save feature importances data, conditional
+    if calculate_feature_importances:
+        r = permutation_importance(netRegressor, X_test, y_test,
+                            n_repeats=30,
+                            random_state=0)
+        feature_importances = r.importances_mean
+        pd.DataFrame({'features': names, 'importances': feature_importances}).to_csv(f'''../data/{target_variable_name}_features_rank.csv''', index=False)
+    
+    return
 
 def set_device_and_nn(feature_num):
     device = (
@@ -115,6 +131,7 @@ def set_device_and_nn(feature_num):
     )
 
     return netRegressor
+    
 
 if __name__ == "__main__":
     main()
