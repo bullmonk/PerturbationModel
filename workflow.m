@@ -39,9 +39,9 @@ function[] = workflow(varargin)
     feature_importance_data = fullfile(dataFolder, [target '_cmp_plot_data.csv']);
     test_input_data = fullfile(dataFolder, [target '_feature_for_test.csv']);
     test_result_data = fullfile(dataFolder, ['predicted_' target '.csv']);
-    % xscaler = fullfile(dumpFolder, [target '_xscaler.joblib']);
-    % yscaler = fullfile(dumpFolder, [target '_yscaler.joblib']);
-    % regressor = fullfile(dumpFolder, [target '_netRegressor.joblib']);
+    xscaler = fullfile(dumpFolder, [target '_xscaler.joblib']);
+    yscaler = fullfile(dumpFolder, [target '_yscaler.joblib']);
+    regressor = fullfile(dumpFolder, [target '_netRegressor.joblib']);
     
     % arguments
     dataBalance = ip.Results.dataBalance;
@@ -52,10 +52,13 @@ function[] = workflow(varargin)
     if ip.Results.disableTargetStand
         disableTargetStandClause = ' --disableTargetStand';
     end
+    saveFeatureImportanceClause = '';
+    if ip.Results.plotFeatureRank
+        saveFeatureImportanceClause= ' --saveFeatureImportances';
+    end
     
     lshell = eval(ip.Results.lshell);
     mlt = eval(ip.Results.mlt);
-
 
     % workflow start.
     if ip.Results.prepareTrainingData
@@ -63,7 +66,9 @@ function[] = workflow(varargin)
     end
 
     if ip.Results.train
-        system(['python3 train.py --iData=' training_data ' --iIndicies=' iIndicies ' --target=' target disableTargetStandClause])
+        system(['python3 ModelTraining/train.py --iData=' training_data ' --iIndicies=' iIndicies ' --target=' target ...
+            disableTargetStandClause saveFeatureImportanceClause ' --xscaler=' xscaler ' --model=' regressor ...
+            ' --yscaler=' yscaler ' --featureImp=' feature_importance_data])
     end
 
     if ip.Results.plotTrainingPerf

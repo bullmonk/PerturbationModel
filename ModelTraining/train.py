@@ -24,11 +24,16 @@ def main():
     # fetch system arguements.
     parser = argparse.ArgumentParser(description="Train a Neural Network Regressor.")
 
-    parser.add_argument("--iData", type=str, help="The file name of input data, .csv or .parquet, with first part of columns of input data, and last few columns of target data.")
+    parser.add_argument("--iData", type=str, help="The file name of input data, .csv or .parquet.")
     parser.add_argument("--iIndicies", type=str, default="0:9", help="Numerical Array, referencing the indicies of columns for trainning input.")
     parser.add_argument("--target", type=str, default="norm_perturbation", help="Name of the target variable column in the original data.")
     parser.add_argument("--disableTargetStand", action='store_false', help="Disable target standardization before and after training.")
-    parser.add_argument("--saveFeatureRank", action='store_true', help="save feature importance in a csv file.")
+    parser.add_argument("--saveFeatureImportances", action='store_true', help="save feature importance in a csv file.")
+    parser.add_argument("--model", type=str, default="dump/netRegressor.joblib", help="file name of the dumped model.")
+    parser.add_argument("--xscaler", type=str, default="dump/xscaler.joblib", help="file name of the dumped xscaler.")
+    parser.add_argument("--yscaler", type=str, default="dump/yscaler.joblib", help="file name of the dumped yscaler.")
+    parser.add_argument("--modelPerf", type=str, default="data/perturbation_cmp_plot_data.csv", help="actual and predicted training target data.")
+    parser.add_argument("--featureImp", type=str, default="data/density_log10_features_rank.csv", help="feature importance data.")
 
     args = parser.parse_args()
 
@@ -39,10 +44,10 @@ def main():
     feature_column_indicies = range(int(s), int(e) + 1)
     target_variable_name = args.target
     target_standardization_enabled = args.disableTargetStand
-    calculate_feature_importances = args.saveFeatureRank
+    calculate_feature_importances = args.saveFeatureImportances
 
     # load data
-    df = pd.read_csv(f'''../data/{original_data}''')
+    df = pd.read_csv(original_data)
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
     df=df.dropna()
 
@@ -79,17 +84,17 @@ def main():
     y_out = netRegressor.predict(X_test)
 
     # dump model
-    dump(netRegressor, f'''../dump/{target_variable_name}_netRegressor.joblib''')
-    dump(xscaler, f'''../dump/{target_variable_name}_xscaler.joblib''')
+    dump(netRegressor, args.model)
+    dump(xscaler, args.xscaler)
     if target_standardization_enabled:
-        dump(yscaler, f'''../dump/{target_variable_name}_yscaler.joblib''')
+        dump(yscaler, args.yscaler)
 
     r2 = r2_score(y_test, y_out)
     print(f'''model r2 score on test data is: {r2}''')
 
     # save data for comparison plot
     cmp = pd.DataFrame({'actual': y_test.numpy().flatten(), 'predicted': y_out.flatten()})
-    cmp.to_csv(f'''../data/{target_variable_name}_cmp_plot_data.csv''', index=False)
+    cmp.to_csv(args.modelPerf, index=False)
 
     # save feature importances data, conditional
     if calculate_feature_importances:
@@ -97,7 +102,7 @@ def main():
                             n_repeats=30,
                             random_state=0)
         feature_importances = r.importances_mean
-        pd.DataFrame({'features': names, 'importances': feature_importances}).to_csv(f'''../data/{target_variable_name}_features_rank.csv''', index=False)
+        pd.DataFrame({'features': names, 'importances': feature_importances}).to_csv(args.featureImp, index=False)
     
     return
 
