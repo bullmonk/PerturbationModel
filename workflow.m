@@ -1,41 +1,84 @@
+function[] = workflow(varargin)
+    ip = inputParser;
 
-%% Data Preparation.
-% this will create 2 files under PerturbationModel/data/ folder.
-% (1) satellite_###.csv, where ### stand for the fraction to total data.
-% (2) featuresForModelPlot.csv, which is used for ploting density or
-% perturbation versus mlt and lshell.
-prepareTrainingData(true, true, 'fractionDenominator', 100);
+    addParameter(ip, 'dataBalance', true);
+    addParameter(ip, 'saveSubset', true);
+    addParameter(ip, 'fractionDenominator', 10000);
 
-%% plot actual vs predicted.
-plotting(1, plottingOption.modelComparison, 'cmpData', 'density_log10_cmp_plot_data.csv');
+    addParameter(ip, 'dataFolder', 'data');
+    addParameter(ip, 'dumpFolder', 'dump');
+    addParameter(ip, 'target', 'density_log10');
+    addParameter(ip, 'iIndicies', '0:125');
+    addParameter(ip, 'disableTargetStand', false);
+    addParameter(ip, 'lshell', '2:0.1:6.5');
+    addParameter(ip, 'mlt', '0:1:24');
 
-%% plot feature importance rank.
-plotting(1, plottingOption.featureRank, 'featureImportancesData', 'density_log10_features_rank.csv');
+    addParameter(ip, 'prepareTrainingData', true);
+    addParameter(ip, 'train', true);
+    addParameter(ip, 'plotTrainingPerf', false);
+    addParameter(ip, 'plotFeatureRank', false);
+    addParameter(ip, 'prepareTestInput', true);
+    addParameter(ip, 'predict', true);
+    addParameter(ip, 'plotPredicted', true);
 
-%% Run Model Training.
+    parse(ip, wIndex, pOption, varargin{:});
 
-% install dependencies.
-%system('conda init; conda activate jpt');
-% run model training.
+    dataFolder = ip.Results.dataFolder;
+    dumpFolder = ip.Results.dumpFolder;
+    fractionDenominator = ip.Results.fractionDenominator;
+    target = ip.Results.target;
 
-if 1
-%[~, cmdout] = system('cd ../ModelTraining; ./train.sh')
-%system('cd ../ModelTraining; ./train.sh')
-%fprintf('The model performance is %f on test data.', cmdout);
-system('cd ../ModelTraining;python3 train.py --iData=satellite_100.csv --iIndicies=0:125 --target=density_log10 --disableTargetStand')
-%cd ../DataPreparation 
+    % default variables.
+    training_data = fullfile(dataFolder, ['satellite_' num2str(fractionDenominator) '.csv']);
+    model_perf_data = fullfile(dataFolder, [target '_cmp_plot_data.csv']);
+    feature_importance_data = fullfile(dataFolder, [target '_cmp_plot_data.csv']);
+    test_input_data = fullfile(dataFolder, [target '_feature_for_test.csv']);
+    test_result_data = fullfile(dataFolder, ['predicted_' target '.csv']);
+    
+    % xscaler = fullfile(dumpFolder, [target '_xscaler.joblib']);
+    % yscaler = fullfile(dumpFolder, [target '_yscaler.joblib']);
+    % regressor = fullfile(dumpFolder, [target '_netRegressor.joblib']);
 
-% generate files in dump folder
-% dump/density_log10_*.joblib
-%return
+    
+    % arguments
+    dataBalance = ip.Results.dataBalance;
+    saveSubset = ip.Results.saveSubset;
+    iIndicies = ip.Results.iIndicies;
+
+    disableTargetStandClause = '';
+    if ip.Results.disableTargetStand
+        disableTargetStandClause = ' --disableTargetStand';
+    end
+    
+    lshell = eval(ip.Results.lshell);
+    mlt = eval(ip.Results.mlt);
+
+    if ip.Results.prepareTrainingData
+        prepareTrainingData(dataBalance, saveSubset, 'fractionDenominator', fractionDenominator);
+    end
+
+    if ip.Results.train
+        system(['python3 train.py --iData=' training_data ' --iIndicies=' iIndicies ' --target=' target disableTargetStandClause])
+    end
+
+    if ip.Results.plotTrainingPerf
+        plotting(1, plottingOption.modelComparison, 'cmpData', model_perf_data);
+    end
+
+    if ip.Results.plotFeatureRank
+        plotting(1, plottingOption.featureRank, 'featureImportancesData', feature_importance_data);
+    end
+
+    if ip.Results.prepareTestInput
+        prepareTestInput(lshell, mlt, 'iFile', training_data, 'oFile', test_input_data);
+    end
+
+    if ip.Results.predict
+        system(['python3 predict.py --iData=' test_input_data ' --iIndicies=' iIndicies ' --target=' target disableTargetStandClause]);
+    end
+
+    if ip.Results.plotPredicted
+        plotting(1, plottingOption.colormap, 'predictedData', test_result_data, 'zName', target);
+    end
+
 end
-
-if 1
-%% Predict output with trained model and manuscripted feature inputs.
-system('cd ../ModelTraining;python3 predict.py --iData=featuresForModelPlot.csv --iIndicies=0:125 --target=density_log10 --disableTargetStand');
-% generate data/predicted_density_log10.csv
-%return
-end
-
-%% Plot output vs lshell vs mlt.
-plotting(1, plottingOption.colormap, 'predictedData', 'predicted_perturbation.csv', 'zName', 'Perturbation');

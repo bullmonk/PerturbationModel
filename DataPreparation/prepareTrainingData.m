@@ -66,18 +66,4 @@ function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
     file = [data_path 'satellite_' num2str(ip.Results.fractionDenominator) '.csv'];
     writetable(tbl, file, 'WriteVariableNames', true);
 
-    % Create feature data for model validation plot.
-    lshell = 2:0.1:6.5;
-    mlt = 0:1:24;
-    coord = combvec(lshell, mlt);
-    len = length(coord); % total number of rows in our test input.
-    M = median(tbl, 1); % median of all columns.
-    test_input = repmat(M, len, 1);
-    test_input.lshell = coord(1,:)';
-    test_input.cos = cos(coord(2,:) / 24 * 2 * pi)';
-    test_input.sin = sin(coord(2,:) / 24 * 2 * pi)';
-    
-    file = [data_path 'featuresForModelPlot.csv'];
-    writetable(test_input, file, 'WriteRowNames', true);
-
 end

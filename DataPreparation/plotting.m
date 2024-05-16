@@ -110,7 +110,7 @@ function[wIndex] = plotting(wIndex, pOption, varargin)
             c = colorbar;
             c.Label.FontSize = 30;
             c.Label.String = ip.Results.zName;
-            caxis([min(Z, [], "all") max(Z, [], "all")]);
+            clim([min(Z, [], "all") max(Z, [], "all")]);
             colormap("jet");
         case plottingOption.modelComparison
             plot_name = 'Model Output Comparison';
