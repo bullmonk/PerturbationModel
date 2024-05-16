@@ -23,27 +23,30 @@ def main():
     parser = argparse.ArgumentParser(description="Train a Neural Network Regressor.")
 
     parser.add_argument("--iData", type=str, help="The file name of input data, .csv or .parquet, only feature data will be used.")
+    parser.add_argument("--oData", type=str, help="The file of predicted target data, .csv or .parquet.")
     parser.add_argument("--iIndicies", type=str, default="0:9", help="Numerical Array, referencing the indicies of columns for trainning input.")
     parser.add_argument("--target", type=str, default="norm_perturbation", help="Name of the target variable column in the original data.")
     parser.add_argument("--disableTargetStand", action='store_false', help="Disable target standardization before and after training.")
-
+    parser.add_argument("--model", type=str, default="dump/netRegressor.joblib", help="file name of the dumped model.")
+    parser.add_argument("--xscaler", type=str, default="dump/xscaler.joblib", help="file name of the dumped xscaler.")
+    parser.add_argument("--yscaler", type=str, default="dump/yscaler.joblib", help="file name of the dumped yscaler.")
+    
     args = parser.parse_args()
 
     
     # Parse the arguments from the command line.
-    original_data = args.iData
     [s, e] = args.iIndicies.split(':')
     feature_column_indicies = range(int(s), int(e) + 1)
     target_variable_name = args.target
     target_standardization_enabled = args.disableTargetStand
 
     # load input data.
-    input = pd.read_csv(f'''../data/{original_data}''')
-    mdl = load(f'''../dump/{target_variable_name}_netRegressor.joblib''')
-    xscaler = load(f'''../dump/{target_variable_name}_xscaler.joblib''')
+    input = pd.read_csv(args.iData)
+    mdl = load(args.model)
+    xscaler = load(args.xscaler)
     yscaler = None
     if target_standardization_enabled:
-        yscaler = load(f'''../dump/{target_variable_name}_yscaler.joblib''')
+        yscaler = load(args.yscaler)
 
     # extract features
     X = input[input.columns[feature_column_indicies]]
@@ -57,7 +60,7 @@ def main():
         y_out = yscaler.inverse_transform(y_out).flatten()
 
     # dump result
-    pd.DataFrame(y_out).to_csv(f'''../data/predicted_{target_variable_name}.csv''', index=False)
+    pd.DataFrame(y_out).to_csv(args.oData)
 
     return
 

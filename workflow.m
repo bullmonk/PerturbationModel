@@ -66,9 +66,9 @@ function[] = workflow(varargin)
     end
 
     if ip.Results.train
-        system(['python3 ModelTraining/train.py --iData=' training_data ' --iIndicies=' iIndicies ' --target=' target ...
-            disableTargetStandClause saveFeatureImportanceClause ' --xscaler=' xscaler ' --model=' regressor ...
-            ' --yscaler=' yscaler ' --featureImp=' feature_importance_data])
+        system(['python3 ModelTraining/train.py --iData=' training_data ' --oData='  ' --iIndicies=' iIndicies ' --target=' target ...
+            disableTargetStandClause saveFeatureImportanceClause ' --xscaler=' xscaler ' --yscaler=' yscaler ' --model=' regressor ...
+            ' --featureImp=' feature_importance_data])
     end
 
     if ip.Results.plotTrainingPerf
@@ -84,7 +84,8 @@ function[] = workflow(varargin)
     end
 
     if ip.Results.predict
-        system(['python3 predict.py --iData=' test_input_data ' --iIndicies=' iIndicies ' --target=' target disableTargetStandClause]);
+        system(['python3 ModelTraining/predict.py --iData=' test_input_data ' --oData=' test_result_data ' --iIndicies=' iIndicies ...
+            ' --target=' target disableTargetStandClause ' --xscaler=' xscaler ' --yscaler=' yscaler ' --model=' regressor]);
     end
 
     if ip.Results.plotPredicted
