@@ -1,4 +1,7 @@
 function[] = workflow(varargin)
+    addpath('DataPreparation/');
+
+
     ip = inputParser;
 
     addParameter(ip, 'dataBalance', true);
@@ -7,6 +10,7 @@ function[] = workflow(varargin)
 
     addParameter(ip, 'dataFolder', 'data');
     addParameter(ip, 'dumpFolder', 'dump');
+    addParameter(ip, 'plotFolder', 'plot');
     addParameter(ip, 'target', 'density_log10');
     addParameter(ip, 'iIndicies', '0:125');
     addParameter(ip, 'disableTargetStand', false);
@@ -25,6 +29,7 @@ function[] = workflow(varargin)
 
     dataFolder = ip.Results.dataFolder;
     dumpFolder = ip.Results.dumpFolder;
+    plotFolder = ip.Results.plotFolder;
     fractionDenominator = ip.Results.fractionDenominator;
     target = ip.Results.target;
 
@@ -34,11 +39,9 @@ function[] = workflow(varargin)
     feature_importance_data = fullfile(dataFolder, [target '_cmp_plot_data.csv']);
     test_input_data = fullfile(dataFolder, [target '_feature_for_test.csv']);
     test_result_data = fullfile(dataFolder, ['predicted_' target '.csv']);
-    
     % xscaler = fullfile(dumpFolder, [target '_xscaler.joblib']);
     % yscaler = fullfile(dumpFolder, [target '_yscaler.joblib']);
     % regressor = fullfile(dumpFolder, [target '_netRegressor.joblib']);
-
     
     % arguments
     dataBalance = ip.Results.dataBalance;
@@ -53,6 +56,8 @@ function[] = workflow(varargin)
     lshell = eval(ip.Results.lshell);
     mlt = eval(ip.Results.mlt);
 
+
+    % workflow start.
     if ip.Results.prepareTrainingData
         prepareTrainingData(dataBalance, saveSubset, 'fractionDenominator', fractionDenominator);
     end
@@ -62,11 +67,11 @@ function[] = workflow(varargin)
     end
 
     if ip.Results.plotTrainingPerf
-        plotting(1, plottingOption.modelComparison, 'cmpData', model_perf_data);
+        plotting(1, plottingOption.modelComparison, 'cmpData', model_perf_data, 'output', fullfile(plotFolder, [target '_scatter_plot.png']));
     end
 
     if ip.Results.plotFeatureRank
-        plotting(1, plottingOption.featureRank, 'featureImportancesData', feature_importance_data);
+        plotting(1, plottingOption.featureRank, 'featureImportancesData', feature_importance_data, 'output', fullfile(plotFolder, [target '_feature_rank.png']));
     end
 
     if ip.Results.prepareTestInput
@@ -78,7 +83,7 @@ function[] = workflow(varargin)
     end
 
     if ip.Results.plotPredicted
-        plotting(1, plottingOption.colormap, 'predictedData', test_result_data, 'zName', target);
+        plotting(1, plottingOption.colormap, 'predictedData', test_result_data, 'zName', target, 'output', fullfile(plotFolder, [target '_predicted.png']));
     end
 
 end

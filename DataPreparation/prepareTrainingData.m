@@ -3,13 +3,12 @@ function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
     addRequired(ip, 'dataBalance');
     addRequired(ip, 'saveSubset');
     addParameter(ip, 'fractionDenominator', 10000);
+    addParameter(ip, 'dataFolder', 'data');
     parse(ip, dataBalance, saveSubset, varargin{:});
 
 
-    data_path = '../data/';
-
     % load and complete satellite data.
-    data = load([data_path 'ab_den_envelope.mat'], "-mat");
+    data = load(fullfile(ip.Results.dataFolder, 'ab_den_envelope.mat'), "-mat");
     data.datetime = data.datetime_den;
     data = rmfield(data, "datetime_den"); % change field name from datetime_den to datetime.
     
@@ -28,7 +27,7 @@ function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
     data.normalized_perturbation = data.perturbation ./ data.background;
 
     % fetch omni data: ae_index and sym_h, fetched and interpolated
-    omni = load([data_path 'original-data.mat'], "-mat", "original_data").original_data;
+    omni = load(fullfile(ip.Results.dataFolder, 'original-data.mat'), "-mat", "original_data").original_data;
     omni_t = omni.partial_epoches;
     omni_time = datetime(omni_t, 'convertfrom', 'datenum', 'Format', 'MM/dd/yy HH:mm:ss.SSSSSSSSS');
     ae_index = omni.partial_ae_index;
@@ -63,7 +62,7 @@ function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
         clear sz row_indexes subtable
     end
 
-    file = [data_path 'satellite_' num2str(ip.Results.fractionDenominator) '.csv'];
+    file = fullfile(ip.Results.dataFolder, ['satellite_' num2str(ip.Results.fractionDenominator) '.csv']);
     writetable(tbl, file, 'WriteVariableNames', true);
 
 end

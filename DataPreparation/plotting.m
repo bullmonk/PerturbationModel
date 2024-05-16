@@ -4,10 +4,11 @@ function[wIndex] = plotting(wIndex, pOption, varargin)
     addRequired(ip, 'wIndex');
     addRequired(ip, 'pOption');
     addParameter(ip, 'zName', 'log_{10} density');
-    addParameter(ip, 'trainingData', 'satellite_100.csv');
-    addParameter(ip, 'predictedData', 'predicted_density_log10.csv');
-    addParameter(ip, 'cmpData', 'density_log10_cmp_plot_data.csv');
-    addParameter(ip, 'featureImportancesData', 'density_log10_features_rank.csv');
+    addParameter(ip, 'trainingData', 'data/satellite_100.csv');
+    addParameter(ip, 'predictedData', 'data/predicted_density_log10.csv');
+    addParameter(ip, 'cmpData', 'data/density_log10_cmp_plot_data.csv');
+    addParameter(ip, 'featureImportancesData', 'data/density_log10_features_rank.csv');
+    addParameter(ip, 'output', 'plot/test.png');
     parse(ip, wIndex, pOption, varargin{:});
     
     %load data.
@@ -16,13 +17,13 @@ function[wIndex] = plotting(wIndex, pOption, varargin)
     cmp = nan;
     
     if pOption == plottingOption.colormap
-        predicted = readtable(['../data/' ip.Results.predictedData]);
+        predicted = readtable(ip.Results.predictedData);
     elseif pOption == plottingOption.modelComparison
-        cmp = readtable(['../data/' ip.Results.cmpData]);
+        cmp = readtable(ip.Results.cmpData);
     elseif pOption == plottingOption.featureRank
-        featureImpotances = readtable(['../data/' ip.Results.featureImportancesData]);
+        featureImpotances = readtable(ip.Results.featureImportancesData);
     else
-        data = readtable(['../data/' ip.Results.trainingData]);
+        data = readtable(ip.Results.trainingData);
     end
     
     switch pOption
@@ -131,5 +132,5 @@ function[wIndex] = plotting(wIndex, pOption, varargin)
             figure(fig)
             barh(sorted.features, sorted.importances);
      end
-saveeps('test.png')
+    saveeps(ip.Results.output);
 end
