@@ -4,11 +4,12 @@
 ```
 PerturbationModel
 │
+├── workflow.m: matlab script that control the workflow of train-predict-plot.
+│
 ├── CondaEnv
 │   └── environment.yml: the file used to build dependency for pytorch computation
 │
 └── DataPreparation: Code related to prepare training data in table format.
-│    ├── workflow.m: matlab script that control the workflow of train-predict-plot.
 │    ├── preapareTrainingData.m: function that produce table formatted training data.
 │    └── plotting.m: function that handle different plotting jobs.
 │
@@ -18,7 +19,7 @@ PerturbationModel
 ```
 
 #### File Explanation
-- `workflow.m:` Use by click the run button. Edit to achieve different flows.
+- `workflow.m:` a function that is supposed to be used in server matlab environment. The frontend of this entire folder.
 - `prepareTrainingData.m:` 
     - A function:  `prepareTrainingData(dataBalance, saveSubset, fractionDenominator)`
     - `dataBalance`: boolean, true will discard part of close to zero density input data.

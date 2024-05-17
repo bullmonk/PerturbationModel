@@ -42,7 +42,13 @@ function[] = workflow(varargin)
     model_perf_data = fullfile(dataFolder, [target '_cmp_plot_data.csv']);
     feature_importance_data = fullfile(dataFolder, [target '_cmp_plot_data.csv']);
     test_input_data = fullfile(dataFolder, [target '_feature_for_test.csv']);
+    if ip.Results.valueRow > 0
+        test_input_data = fullfile(dataFolder, [num2str(ip.Results.valueRow ) '_' target '_feature_for_test.csv']);
+    end
     test_result_data = fullfile(dataFolder, ['predicted_' target '.csv']);
+    if ip.Results.valueRow > 0
+        test_result_data = fullfile(dataFolder, [num2str(ip.Results.valueRow ) '_predicted_' target '.csv']);
+    end
     xscaler = fullfile(dumpFolder, [target '_xscaler.joblib']);
     yscaler = fullfile(dumpFolder, [target '_yscaler.joblib']);
     regressor = fullfile(dumpFolder, [target '_netRegressor.joblib']);
@@ -56,6 +62,10 @@ function[] = workflow(varargin)
     if ip.Results.disableTargetStand
         disableTargetStandClause = ' --disableTargetStand';
     end
+    saveModelPerformanceClause = '';
+    if ip.Results.plotTrainingPerf
+        saveModelPerformanceClause= '--saveModelPerformance';
+    end
     saveFeatureImportanceClause = '';
     if ip.Results.plotFeatureRank
         saveFeatureImportanceClause= ' --saveFeatureImportances';
@@ -66,34 +76,49 @@ function[] = workflow(varargin)
 
     % workflow start.
     if ip.Results.prepareTrainingData
+        disp('preparing training data...');
         prepareTrainingData(dataBalance, saveSubset, 'fractionDenominator', fractionDenominator);
+        disp(['training data ready as: ' training_data]);
     end
 
     if ip.Results.train
+        disp('train model...');
         system(['python3 ModelTraining/train.py --iData=' training_data ' --iIndicies=' iIndicies ' --target=' target ...
-            disableTargetStandClause saveFeatureImportanceClause ' --xscaler=' xscaler ' --yscaler=' yscaler ' --model=' regressor ...
+            disableTargetStandClause saveModelPerformanceClause saveFeatureImportanceClause ...
+            ' --xscaler=' xscaler ' --yscaler=' yscaler ' --model=' regressor ...
             ' --featureImp=' feature_importance_data])
+        disp(['trained model dumped into: ' regressor]);
     end
 
     if ip.Results.plotTrainingPerf
+        disp('plotting model performance scatter plot...');
         plotting(1, plottingOption.modelComparison, 'cmpData', model_perf_data, 'output', fullfile(plotFolder, [target '_scatter_plot.png']));
+        disp(['scatter plot saved as: ' target '_scatter_plot.png']);
     end
 
     if ip.Results.plotFeatureRank
+        disp('plotting feature importance rank...');
         plotting(1, plottingOption.featureRank, 'featureImportancesData', feature_importance_data, 'output', fullfile(plotFolder, [target '_feature_rank.png']));
+        disp(['feature importance rank saved as: ' target '_feature_rank.png']);
     end
 
     if ip.Results.prepareTestInput
+        disp('preparing test input...');
         prepareTestInput(lshell, mlt, 'iFile', training_data, 'oFile', test_input_data, 'valueRow', ip.Results.valueRow);
+        disp(['test input saved as: ' test_input_data]);
     end
 
     if ip.Results.predict
+        disp('calculating model output using test input...');
         system(['python3 ModelTraining/predict.py --iData=' test_input_data ' --oData=' test_result_data ' --iIndicies=' iIndicies ...
             ' --target=' target disableTargetStandClause ' --xscaler=' xscaler ' --yscaler=' yscaler ' --model=' regressor]);
+        disp(['model output saved as: ' test_result_data]);
     end
 
     if ip.Results.plotPredicted
+        disp('plotting test output over mlt-lshell...');
         plotting(1, plottingOption.colormap, 'predictedData', test_result_data, 'zName', target, 'output', fullfile(plotFolder, [target '_predicted.png']));
+        disp(['plot saved as: ' target '_predicted.png']);
     end
 
 end

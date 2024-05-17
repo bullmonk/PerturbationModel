@@ -28,6 +28,7 @@ def main():
     parser.add_argument("--iIndicies", type=str, default="0:9", help="Numerical Array, referencing the indicies of columns for trainning input.")
     parser.add_argument("--target", type=str, default="norm_perturbation", help="Name of the target variable column in the original data.")
     parser.add_argument("--disableTargetStand", action='store_false', help="Disable target standardization before and after training.")
+    parser.add_argument("--saveModelPerformance", action='store_true', help="save predicted vs actual training data in a csv file.")
     parser.add_argument("--saveFeatureImportances", action='store_true', help="save feature importance in a csv file.")
     parser.add_argument("--model", type=str, default="dump/netRegressor.joblib", help="file name of the dumped model.")
     parser.add_argument("--xscaler", type=str, default="dump/xscaler.joblib", help="file name of the dumped xscaler.")
@@ -39,15 +40,15 @@ def main():
 
     
     # Parse the arguments from the command line
-    original_data = args.iData
     [s, e] = args.iIndicies.split(':')
     feature_column_indicies = range(int(s), int(e) + 1)
     target_variable_name = args.target
     target_standardization_enabled = args.disableTargetStand
+    calculate_model_performance = args.saveModelPerformance
     calculate_feature_importances = args.saveFeatureImportances
 
     # load data
-    df = pd.read_csv(original_data)
+    df = pd.read_csv(args.iData)
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
     df=df.dropna()
 
@@ -93,8 +94,9 @@ def main():
     print(f'''model r2 score on test data is: {r2}''')
 
     # save data for comparison plot
-    cmp = pd.DataFrame({'actual': y_test.numpy().flatten(), 'predicted': y_out.flatten()})
-    cmp.to_csv(args.modelPerf, index=False)
+    if calculate_model_performance:
+        cmp = pd.DataFrame({'actual': y_test.numpy().flatten(), 'predicted': y_out.flatten()})
+        cmp.to_csv(args.modelPerf, index=False)
 
     # save feature importances data, conditional
     if calculate_feature_importances:
