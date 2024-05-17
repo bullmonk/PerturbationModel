@@ -60,7 +60,7 @@ def main():
         y_out = yscaler.inverse_transform(y_out).flatten()
 
     # dump result
-    pd.DataFrame(y_out).to_csv(args.oData)
+    pd.DataFrame(y_out, columns=['predicted']).to_csv(args.oData, index=False)
 
     return
 

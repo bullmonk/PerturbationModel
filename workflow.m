@@ -17,15 +17,19 @@ function[] = workflow(varargin)
     addParameter(ip, 'lshell', '2:0.1:6.5');
     addParameter(ip, 'mlt', '0:1:24');
 
-    addParameter(ip, 'prepareTrainingData', true);
-    addParameter(ip, 'train', true);
+    % workflow set up.
+    addParameter(ip, 'prepareTrainingData', false);
+    addParameter(ip, 'train', false);
     addParameter(ip, 'plotTrainingPerf', false);
     addParameter(ip, 'plotFeatureRank', false);
-    addParameter(ip, 'prepareTestInput', true);
-    addParameter(ip, 'predict', true);
-    addParameter(ip, 'plotPredicted', true);
+    addParameter(ip, 'prepareTestInput', false);
+    addParameter(ip, 'predict', false);
+    addParameter(ip, 'plotPredicted', false);
 
-    parse(ip, wIndex, pOption, varargin{:});
+    % special usage
+    addParameter(ip, 'valueRow', -1);
+
+    parse(ip, varargin{:});
 
     dataFolder = ip.Results.dataFolder;
     dumpFolder = ip.Results.dumpFolder;
@@ -66,7 +70,7 @@ function[] = workflow(varargin)
     end
 
     if ip.Results.train
-        system(['python3 ModelTraining/train.py --iData=' training_data ' --oData='  ' --iIndicies=' iIndicies ' --target=' target ...
+        system(['python3 ModelTraining/train.py --iData=' training_data ' --iIndicies=' iIndicies ' --target=' target ...
             disableTargetStandClause saveFeatureImportanceClause ' --xscaler=' xscaler ' --yscaler=' yscaler ' --model=' regressor ...
             ' --featureImp=' feature_importance_data])
     end
@@ -80,7 +84,7 @@ function[] = workflow(varargin)
     end
 
     if ip.Results.prepareTestInput
-        prepareTestInput(lshell, mlt, 'iFile', training_data, 'oFile', test_input_data);
+        prepareTestInput(lshell, mlt, 'iFile', training_data, 'oFile', test_input_data, 'valueRow', ip.Results.valueRow);
     end
 
     if ip.Results.predict
