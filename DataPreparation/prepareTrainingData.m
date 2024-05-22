@@ -4,6 +4,7 @@ function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
     addRequired(ip, 'saveSubset');
     addParameter(ip, 'fractionDenominator', 10000);
     addParameter(ip, 'dataFolder', 'data');
+    addParameter(ip, 'fid', num2str(1));
     parse(ip, dataBalance, saveSubset, varargin{:});
 
 
@@ -62,7 +63,7 @@ function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
         clear sz row_indexes subtable
     end
 
-    file = fullfile(ip.Results.dataFolder, ['satellite_' num2str(ip.Results.fractionDenominator) '.csv']);
+    file = fullfile(ip.Results.dataFolder, ['satellite_' num2str(ip.Results.fractionDenominator) '_' ip.Results.fid '.csv']);
     writetable(tbl, file, 'WriteVariableNames', true);
 
 end
