@@ -20,7 +20,7 @@ function[] = prepareTestInput(lshell, mlt, varargin)
     test_input.lshell = coord(1,:)';
     test_input.cos = cos(coord(2,:) / 24 * 2 * pi)';
     test_input.sin = sin(coord(2,:) / 24 * 2 * pi)';
-    
+    test_input.mlat(:) = 0;
     % save output.
     writetable(test_input, ip.Results.oFile, 'WriteVariableNames', true);
 
