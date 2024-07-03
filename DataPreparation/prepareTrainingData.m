@@ -38,12 +38,12 @@ function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
     % lag data by 5 hours to create 60 new variables for sym_h and ae_index
     [ae_names, data.ae_variables] = buildHistoryVariables('ae_index', ae_index, omni_time, data.datetime);
     [symh_names, data.symh_variables] = buildHistoryVariables('sym_h', sym_h, omni_time, data.datetime);
-    data.variable_names = ["mlat", "cos", "sin", "lshell", ae_names, symh_names, "density", "density_log10", "perturbation", "perturbation_norm"];
+    data.variable_names = ["time", "mlat", "cos", "sin", "lshell", ae_names, symh_names, "density", "density_log10", "perturbation", "perturbation_norm"];
 
     clear ae_names symh_names omni_time sym_h ae_index
 
     % build table
-    matrix = [data.mlat', data.cos', data.sin', data.lshell',...
+    matrix = [data.datetime', data.mlat', data.cos', data.sin', data.lshell',...
         data.ae_variables, data.symh_variables, ...
         data.density', data.density_log10', data.perturbation', ...
         data.normalized_perturbation'];
