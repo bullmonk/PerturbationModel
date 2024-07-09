@@ -96,8 +96,11 @@ function[] = workflow(varargin)
     if ip.Results.plotTrainingPerf
         disp('plotting model performance scatter plot...');
 
-        plotting(1, plottingOption.modelComparison, 'cmpData', model_perf_data, 'output', ...
-            fullfile(plotFolder, [target '_scatter_plot_' fid '.png']));
+        model_perf_data = fullfile(dataFolder, [target '_cmp_plot_data_' fid '.csv']);
+        performance_plot_file = fullfile(plotFolder, [target '_scatter_plot_' fid '.png']);
+
+        plotting(1, plottingOption.modelComparison, 'cmpData', model_perf_data, ...
+            'output', performance_plot_file);
 
         disp(['scatter plot saved as: ' target '_scatter_plot.png']);
     end
