@@ -1,6 +1,6 @@
-### Build Neural Network Model for Electron Density in Magnetosphere
+## Build Neural Network Model for Electron Density in Magnetosphere
 
-#### Folder Structure
+### Folder Structure
 ```
 PerturbationModel
 │
@@ -18,29 +18,31 @@ PerturbationModel
     └── predit.py: python script that dump predicted result (.csv) by using dumped model.
 ```
 
-#### File Explanation
-- `workflow.m:` a function that is supposed to be used in server matlab environment. The frontend of this entire folder.
-- `prepareTrainingData.m:` 
-    - A function:  `prepareTrainingData(dataBalance, saveSubset, fractionDenominator)`
-    - `dataBalance`: boolean, true will discard part of close to zero density input data.
-    - `saveSubset`: boolean, true will make train data a fractional of all original data.
-    - `fractionDenominator`: optional arguement, int type, 1 over wihch as a fraction will this function save subset of original data as trainning input.
-- `plotting.m:`
-    - A function: `plotting(wIndex, pOption, trainingData, predictedData)`
-    - `wIndex`: positive int, a window index that suggesting where you want to plot locate in screen. 1-9 will cover all available locations.
-    - `pOption`: enum defined in `plottingOption.m`, set to plot different plots.
-    - `trainingData`: optional arguement, will be used when `pOption != plottingOption.densityLshellMlt`, string, suggesting the file name of the training data. ex, `satellite_100.csv`.
-    - `predictedData`: optional arguement, will be used when `pOption == plottingOption.densityLshellMlt`, string, suggesting the file name of the predicted output. ex, `predicted_density_log10.csv`
-- `train.py:` run by `python3 train.py` with some arguements. Detailed example in `workflow.m`.
-    - `--iData`, required, suggesting the training data file name.
-    - `--iIndicies`, required, suggesting the columns used as features, ex, `0:9` means column 0 to column 9.
-    - `--target`, required, suggesting the column of which is used as target.
-    - `--disableTargetStand`, optional, when used, standardization on target variable will be disabled.
-- `predict.py:` run by `python3 predict.py` with some arguements. Detailed example in `workflow.m`.
-    - `--iData`, required, suggesting the feature input data file name.
-    - `--iIndicies`, required, suggesting the columns used as features, ex, `0:9` means column 0 to column 9.
-    - `--target`, required, suggesting the column of which is used as target.
-    - `--disableTargetStand`, optional, when used, standardization on target variable will be disabled.
+## Core Usage
+**The major usage of this repo is to operate the `workflow.m` file to achieve entire model training/test flow, or repeat a specific precedure.**
 
-#### Remaining Anonymous Files
-- They are helper functions used by above major scripts listed above.
+#### Procedures within workflow
+1. Prepare Training Data: transfer original satellite data into usable table as model feed.
+2. Train Model: Comes with 2 optional precedures
+    ```
+    Train Model
+        ├── plot trained model performance
+        └── plot feature importance rank
+    ```
+3. Prepare Test Input: Build some test input, or other input to use the trained model.
+4. Predict: use model to predict on scripted input.
+5. Plot predicted data.
+
+## code example to use each procedure
+- each ex uses all possible arguements.
+- note that simpily putting all arguements from wanted individual procedure together will make it a full workflow. Order doesn't matter.
+
+### Prepare Training Data
+```
+workflow('prepareTrainingData', true, 'dataBalance', true, 'saveSubset', true, 'fractionDenominator', 1000, 'ofid', 0);
+```
+-  `prepareTrainingData` - set true to enables first procedure.
+- `dataBalance` - set true to delete some close to 0 data to achieve balanced input.
+- `saveSubset` - set true to use only subset of data. (TODO: enable whole data procedure)
+- `fractionDenominator` - come with `saveSubset`, the fractional size of used data.
+- `ofid` - the output data file ID. manually set to distinguish each run.

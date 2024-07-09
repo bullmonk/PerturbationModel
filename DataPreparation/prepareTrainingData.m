@@ -4,7 +4,7 @@ function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
     addRequired(ip, 'saveSubset');
     addParameter(ip, 'fractionDenominator', 10000);
     addParameter(ip, 'dataFolder', 'data');
-    addParameter(ip, 'fid', num2str(1));
+    addParameter(ip, 'filename', num2str(1));
     parse(ip, dataBalance, saveSubset, varargin{:});
 
 
@@ -38,12 +38,12 @@ function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
     % lag data by 5 hours to create 60 new variables for sym_h and ae_index
     [ae_names, data.ae_variables] = buildHistoryVariables('ae_index', ae_index, omni_time, data.datetime);
     [symh_names, data.symh_variables] = buildHistoryVariables('sym_h', sym_h, omni_time, data.datetime);
-    data.variable_names = ["time", "mlat", "cos", "sin", "lshell", ae_names, symh_names, "density", "density_log10", "perturbation", "perturbation_norm"];
+    data.variable_names = ["datetime", "mlat", "cos", "sin", "lshell", ae_names, symh_names, "density", "density_log10", "perturbation", "perturbation_norm"];
 
     clear ae_names symh_names omni_time sym_h ae_index
 
     % build table
-    matrix = [data.datetime', data.mlat', data.cos', data.sin', data.lshell',...
+    matrix = [convertTo(data.datetime, 'epochtime')', data.mlat', data.cos', data.sin', data.lshell',...
         data.ae_variables, data.symh_variables, ...
         data.density', data.density_log10', data.perturbation', ...
         data.normalized_perturbation'];
@@ -54,6 +54,7 @@ function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
     nanRows = any(isnan(matrix), 2);
     matrix = matrix(~nanRows, :);
     tbl = array2table(matrix, 'VariableNames', data.variable_names);
+    tbl.datetime = datetime(tbl.datetime, 'ConvertFrom', 'epochtime');
 
     if saveSubset
         sz = size(matrix, 1);
@@ -63,7 +64,7 @@ function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
         clear sz row_indexes subtable
     end
 
-    file = fullfile(ip.Results.dataFolder, ['satellite_' num2str(ip.Results.fractionDenominator) '_' ip.Results.fid '.csv']);
+    file = fullfile(ip.Results.dataFolder, ip.Results.filename);
     writetable(tbl, file, 'WriteVariableNames', true);
 
 end

@@ -4,21 +4,29 @@ function[] = workflow(varargin)
 
     ip = inputParser;
 
+    % common/fixture.
+    addParameter(ip, 'dataFolder', 'data');
+    addParameter(ip, 'dumpFolder', 'dump');
+    addParameter(ip, 'plotFolder', 'plot');
+    addParameter(ip, 'ifid', 1);
+    addParameter(ip, 'ofid', 1);
+
+    % prepare training data.
     addParameter(ip, 'dataBalance', true);
     addParameter(ip, 'saveSubset', true);
     addParameter(ip, 'fractionDenominator', 10000);
 
-    addParameter(ip, 'dataFolder', 'data');
-    addParameter(ip, 'dumpFolder', 'dump');
-    addParameter(ip, 'plotFolder', 'plot');
+    % train model.
     addParameter(ip, 'target', 'density_log10');
     addParameter(ip, 'iIndicies', '0:125');
     addParameter(ip, 'disableTargetStand', false);
+
+    % prepare testing data.
     addParameter(ip, 'lshell', '2:0.1:6.5');
     addParameter(ip, 'mlt', '0:1:24');
-    addParameter(ip, 'fid', 1);
+    
 
-    % workflow set up.
+    % workflow tasks.
     addParameter(ip, 'prepareTrainingData', false);
     addParameter(ip, 'train', false);
     addParameter(ip, 'plotTrainingPerf', false);
@@ -27,31 +35,27 @@ function[] = workflow(varargin)
     addParameter(ip, 'predict', false);
     addParameter(ip, 'plotPredicted', false);
 
-    % special usage
-    addParameter(ip, 'valueRow', -1);
-
+    % fetch parameters.
     parse(ip, varargin{:});
 
+    % set up variables.
     dataFolder = ip.Results.dataFolder;
     dumpFolder = ip.Results.dumpFolder;
     plotFolder = ip.Results.plotFolder;
-    fractionDenominator = ip.Results.fractionDenominator;
     target = ip.Results.target;
-    fid = num2str(ip.Results.fid);
+    ifid = num2str(ip.Results.ifid);
+    ofid = num2str(ip.Results.ofid);
 
     % default variables.
-    training_data = fullfile(dataFolder, ['satellite_' num2str(fractionDenominator) '_' fid '.csv']);
-    model_perf_data = fullfile(dataFolder, [target '_cmp_plot_data_' fid '.csv']);
-    feature_importance_data = fullfile(dataFolder, [target '_cmp_plot_data_' fid '.csv']);
-    test_input_data = fullfile(dataFolder, [target '_feature_for_test_' fid '.csv']);
-    test_result_data = fullfile(dataFolder, ['predicted_' target '_' fid '.csv']);
-    xscaler = fullfile(dumpFolder, [target '_xscaler_' fid '.joblib']);
-    yscaler = fullfile(dumpFolder, [target '_yscaler_' fid '.joblib']);
-    regressor = fullfile(dumpFolder, [target '_netRegressor_' fid '.joblib']);
+    model_perf_data = fullfile(dataFolder, [target '_cmp_plot_data_' ofid '.csv']);
+    feature_importance_data = fullfile(dataFolder, [target '_cmp_plot_data_' ofid '.csv']);
+    test_input_data = fullfile(dataFolder, [target '_feature_for_test_' ifid '.csv']);
+    test_result_data = fullfile(dataFolder, ['predicted_' target '_' ofid '.csv']);
+    xscaler = fullfile(dumpFolder, [target '_xscaler_' ifid '.joblib']);
+    yscaler = fullfile(dumpFolder, [target '_yscaler_' ifid '.joblib']);
+    regressor = fullfile(dumpFolder, [target '_netRegressor_' ifid '.joblib']);
     
     % arguments
-    dataBalance = ip.Results.dataBalance;
-    saveSubset = ip.Results.saveSubset;
     iIndicies = ip.Results.iIndicies;
 
     disableTargetStandClause = '';
@@ -73,8 +77,14 @@ function[] = workflow(varargin)
     % workflow start.
     if ip.Results.prepareTrainingData
         disp('preparing training data...');
-        prepareTrainingData(dataBalance, saveSubset, 'fractionDenominator', fractionDenominator, 'fid', fid);
-        disp(['training data ready as: ' training_data]);
+
+        fractionDenominator = ip.Results.fractionDenominator;
+        fid = num2str(ip.Results.ofid);
+        training_data_file_name = ['training_data_' ofid '.csv'];
+        prepareTrainingData(ip.Results.dataBalance, ip.Results.saveSubset, ...
+            'fractionDenominator', fractionDenominator, 'dataFolder', dataFolder, 'filename', training_data_file_name);
+        
+        disp(['training data ready as: ' training_data_file_name]);
     end
 
     if ip.Results.train

@@ -11,7 +11,7 @@ function [names, arrays] = buildHistoryVariables(name, array, array_time, target
 
     % build names for each array
     lags = 1:60;
-    toAppend = arrayfun(@(x) sprintf('%s-lagged-by-%d-minutes', name, x), lags * 5, 'UniformOutput', false);
+    toAppend = arrayfun(@(x) sprintf('%s_lagged_by_%d_minutes', name, x), lags * 5, 'UniformOutput', false);
     names = string([name, toAppend]);
 
 end
