@@ -42,35 +42,10 @@ function[] = workflow(varargin)
     dataFolder = ip.Results.dataFolder;
     dumpFolder = ip.Results.dumpFolder;
     plotFolder = ip.Results.plotFolder;
-    target = ip.Results.target;
     ifid = num2str(ip.Results.ifid);
     ofid = num2str(ip.Results.ofid);
-
-    % default variables.
-    model_perf_data = fullfile(dataFolder, [target '_cmp_plot_data_' ofid '.csv']);
-    feature_importance_data = fullfile(dataFolder, [target '_cmp_plot_data_' ofid '.csv']);
-    test_input_data = fullfile(dataFolder, [target '_feature_for_test_' ifid '.csv']);
-    test_result_data = fullfile(dataFolder, ['predicted_' target '_' ofid '.csv']);
-    xscaler = fullfile(dumpFolder, [target '_xscaler_' ifid '.joblib']);
-    yscaler = fullfile(dumpFolder, [target '_yscaler_' ifid '.joblib']);
-    regressor = fullfile(dumpFolder, [target '_netRegressor_' ifid '.joblib']);
-    
-    % arguments
     iIndicies = ip.Results.iIndicies;
-
-    disableTargetStandClause = '';
-    if ip.Results.disableTargetStand
-        disableTargetStandClause = ' --disableTargetStand';
-    end
-    saveModelPerformanceClause = '';
-    if ip.Results.plotTrainingPerf
-        saveModelPerformanceClause= '--saveModelPerformance';
-    end
-    saveFeatureImportanceClause = '';
-    if ip.Results.plotFeatureRank
-        saveFeatureImportanceClause= ' --saveFeatureImportances';
-    end
-    
+    target = ip.Results.target;
     lshell = eval(ip.Results.lshell);
     mlt = eval(ip.Results.mlt);
 
@@ -89,24 +64,50 @@ function[] = workflow(varargin)
 
     if ip.Results.train
         disp('train model...');
-        system(['python3 ModelTraining/train.py --iData=' training_data ' --iIndicies=' iIndicies ' --target=' target ...
+
+        disableTargetStandClause = '';
+        if ip.Results.disableTargetStand
+            disableTargetStandClause = ' --disableTargetStand';
+        end
+        saveModelPerformanceClause = '';
+        if ip.Results.plotTrainingPerf
+            saveModelPerformanceClause= '--saveModelPerformance';
+        end
+        saveFeatureImportanceClause = '';
+        if ip.Results.plotFeatureRank
+            saveFeatureImportanceClause= ' --saveFeatureImportances';
+        end
+        training_data_file_name = fullfile(dataFolder, ['training_data_' ifid '.csv']);
+        xscaler = fullfile(dumpFolder, [target '_xscaler_' ofid '.joblib']);
+        yscaler = fullfile(dumpFolder, [target '_yscaler_' ofid '.joblib']);
+        regressor = fullfile(dumpFolder, [target '_netRegressor_' ofid '.joblib']);
+        % comes with saveFeatureImportanceClause.
+        feature_importance_data = fullfile(dataFolder, [target '_cmp_plot_data_' ofid '.csv']);
+
+        system(['python3 ModelTraining/train.py --iData=' training_data_file_name ...
+            ' --iIndicies=' iIndicies ' --target=' target ...
             disableTargetStandClause saveModelPerformanceClause saveFeatureImportanceClause ...
             ' --xscaler=' xscaler ' --yscaler=' yscaler ' --model=' regressor ...
             ' --featureImp=' feature_importance_data])
+
         disp(['trained model dumped into: ' regressor]);
     end
 
     if ip.Results.plotTrainingPerf
         disp('plotting model performance scatter plot...');
+
         plotting(1, plottingOption.modelComparison, 'cmpData', model_perf_data, 'output', ...
             fullfile(plotFolder, [target '_scatter_plot_' fid '.png']));
+
         disp(['scatter plot saved as: ' target '_scatter_plot.png']);
     end
 
     if ip.Results.plotFeatureRank
         disp('plotting feature importance rank...');
+
         plotting(1, plottingOption.featureRank, 'featureImportancesData', feature_importance_data, 'output', ...
             fullfile(plotFolder, [target '_feature_rank_' fid '.png']));
+
         disp(['feature importance rank saved as: ' target '_feature_rank.png']);
     end
 

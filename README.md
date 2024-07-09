@@ -41,8 +41,19 @@ PerturbationModel
 ```
 workflow('prepareTrainingData', true, 'dataBalance', true, 'saveSubset', true, 'fractionDenominator', 1000, 'ofid', 0);
 ```
--  `prepareTrainingData` - set true to enables first procedure.
+- `prepareTrainingData` - set true to enable first procedure.
 - `dataBalance` - set true to delete some close to 0 data to achieve balanced input.
 - `saveSubset` - set true to use only subset of data. (TODO: enable whole data procedure)
 - `fractionDenominator` - come with `saveSubset`, the fractional size of used data.
 - `ofid` - the output data file ID. manually set to distinguish each run.
+
+### Train
+```
+workflow('train', true, 'ifid', 0, 'ofid', 1, 'iIndicies', '1:126', 'target', 'density_log10', 'disableTargetStand', true);
+```
+- `train` - set true to enable 2nd procedure.
+- `ifid` - input file id. To pick a result from a specific run.
+- `ofid` - output file id. Manually set to distinguish each run.
+- `iIndicies` - to choose column indicies of input feature columns.
+- `target` - to choose the column name of the target variable.
+- `disableTargetStand` - set true to disable target variable normalization.
