@@ -62,7 +62,7 @@ workflow('train', true, 'ifid', 0, 'ofid', 0, 'iIndicies', '1:126', 'target', 'd
 
 ### Prepare Model Input
 ```
-workflow('prepareTestInput', true, 'ifid', 0, 'ofid', 0, 'lshell', '2:0.1:6.5', 'mlt', '0:1:24', 's', '05-May-2015 12:23:31', 'e', '20-May-2015 12:23:31', 'sampleNum', 30);
+workflow('prepareTestInput', true, 'ifid', 1, 'ofid', 0, 'lshell', '2:0.1:6.5', 'mlt', '0:1:24', 's', '31-May-2013 12:00:00', 'e', '01-Jun-2013 20:00:00', 'sampleNum', 48);
 ```
 - `prepareTestInput` - set true to enable this procedure.
 - `ifid` - input file id. To pick a result from a specific run.
