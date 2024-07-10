@@ -38,13 +38,30 @@ PerturbationModel
 - note that simpily putting all arguements from wanted individual procedure together will make it a full workflow. Order doesn't matter.
 
 ### Prepare Training Data
+
+#### Case 1: Build training data using randomized subset of all satellite data
 ```
-workflow('prepareTrainingData', true, 'dataBalance', true, 'saveSubset', true, 'fractionDenominator', 1000, 'ofid', 0, 'perturbationWindow', 2, 'windowPopulation', 10);
+workflow('prepareTrainingData', true, 'dataBalance', true, 'saveFractionalSubset', true, 'saveTimelineSubset', false, 'fractionDenominator', 1000, 'ofid', 0, 'perturbationWindow', 2, 'windowPopulation', 10);
 ```
 - `prepareTrainingData` - set true to enable first procedure.
 - `dataBalance` - set true to delete some close to 0 data to achieve balanced input.
-- `saveSubset` - set true to use only subset of data. (TODO: enable whole data procedure)
-- `fractionDenominator` - come with `saveSubset`, the fractional size of used data.
+- `saveFractionalSubset` - set true to use only subset of data.
+- `saveTimelineSubset` - set true to use only subset of data.
+- `fractionDenominator` - come with `saveFractionalSubset`, the fractional size of used data.
+- `ofid` - the output data file ID. manually set to distinguish each run.
+- `perturbationWindow` - the perturbation window length in minutes.
+- `windowPopulation` - the perturbation window population lower bond.
+
+#### Case 2: Build training data using subset of all satellite data within a period of time
+```
+workflow('prepareTrainingData', true, 'dataBalance', true, 'saveFractionalSubset', false, 'saveTimelineSubset', true, 's', '28-May-2013 00:00:00', 'e', '07-Jun-2013 00:00:00', 'ofid', 3, 'perturbationWindow', 2, 'windowPopulation', 10);
+```
+- `prepareTrainingData` - set true to enable first procedure.
+- `dataBalance` - set true to delete some close to 0 data to achieve balanced input.
+- `saveFractionalSubset` - set true to use only subset of data.
+- `saveTimelineSubset` - set true to use only subset of data.
+- `s` - come with `saveTimelineSubset`, the starting time of subset period.
+- `e` - come with `saveTimelineSubset`, the ending time of subset period.
 - `ofid` - the output data file ID. manually set to distinguish each run.
 - `perturbationWindow` - the perturbation window length in minutes.
 - `windowPopulation` - the perturbation window population lower bond.
@@ -62,10 +79,11 @@ workflow('train', true, 'ifid', 0, 'ofid', 0, 'iIndicies', '1:126', 'target', 'd
 
 ### Prepare Model Input
 ```
-workflow('prepareTestInput', true, 'ifid', 1, 'ofid', 0, 'lshell', '2:0.1:6.5', 'mlt', '0:1:24', 's', '31-May-2013 12:00:00', 'e', '01-Jun-2013 20:00:00', 'sampleNum', 48);
+workflow('prepareTestInput', true, 'ifid', 3, 'ofid', 0, 'lshell', '2:0.1:6.5', 'mlt', '0:1:24', 's', '30-May-2013 00:00:00', 'e', '06-Jun-2013 00:00:00', 'sampleNum', 132);
 ```
 - `prepareTestInput` - set true to enable this procedure.
 - `ifid` - input file id. To pick a result from a specific run.
+- `ofid` - output file id. Manual set to distinguish different run results.
 - `lshell` - lshell range.
 - `mlt` - mlt range.
 - `s` - starting of a time period, where ae_index and sym_h data should be chosen from.
@@ -85,14 +103,9 @@ workflow('predict', true, 'iIndicies', '1:126', 'target', 'density_log10', 'disa
 
 ### Plot Predicted
 ```
-workflow('plotPredicted', true, 'target', 'density_log10', 'ifid', 0, 'sampleNum', 30);
+workflow('plotPredicted', true, 'target', 'density_log10', 'ifid', 0, 'sampleNum', 132);
 ```
 - `plotPredicted` - set true to enable this procedure.
 - `target` - target variable name, inherited from train procedure.
 - `ifid` - file id to pick from which run.
 - `sampleNum` - sample number from previous Model Input Process.
-
-### A Complete Workflow
-```
-workflow('prepareTrainingData', true, 'dataBalance', true, 'saveSubset', true, 'fractionDenominator', 1000, 'ofid', 0, 'perturbationWindow', 2, 'windowPopulation', 10, 'train', true, 'ifid', 0, 'iIndicies', '1:126', 'target', 'density_log10', 'disableTargetStand', true, 'prepareTestInput', true, 'lshell', '2:0.1:6.5', 'mlt', '0:1:24', 's', '05-May-2015 12:23:31', 'e', '20-May-2015 12:23:31', 'lim', 30, 'startingIdx', 0, 'predict', true, 'plotPredicted', true, 'startingIdx', 0, 'endingIdx', 29);
-```
