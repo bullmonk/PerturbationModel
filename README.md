@@ -62,7 +62,7 @@ workflow('train', true, 'ifid', 0, 'ofid', 0, 'iIndicies', '1:126', 'target', 'd
 
 ### Prepare Model Input
 ```
-workflow('prepareTestInput', true, 'ifid', 0, 'lshell', '2:0.1:6.5', 'mlt', '0:1:24', 's', '05-May-2015 12:23:31', 'e', '20-May-2015 12:23:31', 'lim', 30, 'startingIdx', 0);
+workflow('prepareTestInput', true, 'ifid', 0, 'ofid', 0, 'lshell', '2:0.1:6.5', 'mlt', '0:1:24', 's', '05-May-2015 12:23:31', 'e', '20-May-2015 12:23:31', 'sampleNum', 30);
 ```
 - `prepareTestInput` - set true to enable this procedure.
 - `ifid` - input file id. To pick a result from a specific run.
@@ -70,29 +70,27 @@ workflow('prepareTestInput', true, 'ifid', 0, 'lshell', '2:0.1:6.5', 'mlt', '0:1
 - `mlt` - mlt range.
 - `s` - starting of a time period, where ae_index and sym_h data should be chosen from.
 - `e` - ending of a time period, where ae_index and sym_h data should be chosen from.
-- `lim` - number of input files wanted. Will be evenly sliced.
-- `startingIdx` - the output files will have same prefix, and a distinguishing idx as a suffix.
+- `sampleNum` - number of samples captured from the period [s,e].
 
 ### Predict
 ```
-workflow('predict', true, 'startingIdx', 0, 'endingIdx', 29, 'iIndicies', '1:126', 'target', 'density_log10', 'disableTargetStand', true, 'ifid', 0);
+workflow('predict', true, 'iIndicies', '1:126', 'target', 'density_log10', 'disableTargetStand', true, 'ifid', 0, 'ofid', 0);
 ```
 - `predict` - set true to enable this procedure.
-- `startingIdx` - suffix of the first model input file.
-- `endingIdx` - suffix of the last model input file.
 - `iIndicies` - indicies of input features, which is inherited from train procedure.
 - `target` - target variable name, inherited from train procedure.
 - `disableTargetStand` - disable normalization of the target variable.
 - `ifid` - the input file id to select xscaler, yscaler, and regressor.
+- `ofid` - output file index, manual set to distinguish different run.
 
 ### Plot Predicted
 ```
-workflow('plotPredicted', true, 'startingIdx', 0, 'endingIdx', 29, 'target', 'density_log10');
+workflow('plotPredicted', true, 'target', 'density_log10', 'ifid', 0, 'sampleNum', 30);
 ```
 - `plotPredicted` - set true to enable this procedure.
-- `startingIdx` - suffix of the first model input file.
-- `endingIdx` - suffix of the last model input file.
 - `target` - target variable name, inherited from train procedure.
+- `ifid` - file id to pick from which run.
+- `sampleNum` - sample number from previous Model Input Process.
 
 ### A Complete Workflow
 ```

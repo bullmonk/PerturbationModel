@@ -5,9 +5,8 @@ function[] = prepareTestInput(lshell, mlt, varargin)
     addRequired(ip, 'lshell');
     addRequired(ip, 'mlt');
     addParameter(ip, 'iFile', 'data/satellite_1000.csv');
-    addParameter(ip, 'ofPrefix', 'data/modelInput_');
-    addParameter(ip, 'startingIdx', 0);
-    addParameter(ip, 'lim', 100);
+    addParameter(ip, 'oFile', 'data/modelInput_1.csv');
+    addParameter(ip, 'sampleNum', 100);
     addParameter(ip, 's', '24-Apr-2018 02:23:31');
     addParameter(ip, 'e', '24-Apr-2018 02:23:31');
 
@@ -15,11 +14,10 @@ function[] = prepareTestInput(lshell, mlt, varargin)
 
     % set variables.
     training_data = ip.Results.iFile;
-    model_input_file_prefix = ip.Results.ofPrefix;
+    model_input_file = ip.Results.oFile;
     s = datetime(ip.Results.s);
     e = datetime(ip.Results.e);
-    lim = ip.Results.lim;
-    startingIdx = ip.Results.startingIdx;
+    sampleNum = ip.Results.sampleNum;
 
     % for a row of traing data table, we want to expand it to global data.
     tbl = readtable(training_data);
@@ -31,15 +29,15 @@ function[] = prepareTestInput(lshell, mlt, varargin)
     % pick those within the range.
     times = dt(dt >= s & dt <= e);
 
-    % for each picked time spot, up to a limit, create model input one by
-    % one.
-    if lim > length(times)
-        lim = length(times);
+    % even sample some times and create input one by one.
+    if sampleNum > length(times)
+        sampleNum = length(times);
     end
     idx = 1;
-    step = length(times) / lim;
+    step = length(times) / sampleNum;
+    outTbl = cell2table(cell(0, length(tbl.Properties.RowNames)), "RowNames", tbl.Properties.RowNames);
 
-    for count = 1 : lim
+    for count = 1 : sampleNum
         idx = floor(idx);
         chosen = tbl(tbl.datetime == times(idx), :);
         idx = idx + step;
@@ -48,9 +46,7 @@ function[] = prepareTestInput(lshell, mlt, varargin)
         test_input.mlt = coord(2,:)';
         test_input.cos = cos(coord(2,:) / 24 * 2 * pi)';
         test_input.sin = sin(coord(2,:) / 24 * 2 * pi)';
-        % save output.
-        writetable(test_input, [model_input_file_prefix num2str(startingIdx) '.csv'], 'WriteVariableNames', true);
-        startingIdx = startingIdx + 1;
+        outTbl = vertcat(outTbl, test_input); %TODO: optimize for speed.
     end
-
+    writetable(outTbl, model_input_file, 'WriteVariableNames', true);
 end

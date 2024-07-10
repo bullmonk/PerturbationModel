@@ -20,6 +20,9 @@ function[wIndex] = plotting(wIndex, pOption, varargin)
     
     if pOption == plottingOption.colormap
         predicted = readtable(ip.Results.predictedData);
+        predicted.predicted = strrep(predicted.predicted, '[', '');
+        predicted.predicted = strrep(predicted.predicted, ']', '');
+        predicted.predicted = str2double(predicted.predicted);
     elseif pOption == plottingOption.modelComparison
         cmp = readtable(ip.Results.cmpData);
     elseif pOption == plottingOption.featureRank

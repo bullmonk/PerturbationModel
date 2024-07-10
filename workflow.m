@@ -29,9 +29,7 @@ function[] = workflow(varargin)
     addParameter(ip, 'mlt', '0:1:24');
     addParameter(ip, 's', '24-Apr-2018 02:23:31');
     addParameter(ip, 'e', '25-Apr-2018 02:23:31');
-    addParameter(ip, 'lim', 100);
-    addParameter(ip, 'startingIdx', 0);
-    addParameter(ip, 'endingIdx', 0);
+    addParameter(ip, 'sampleNum', 100);
     
     % workflow tasks.
     addParameter(ip, 'prepareTrainingData', false);
@@ -53,9 +51,7 @@ function[] = workflow(varargin)
     ofid = num2str(ip.Results.ofid);
     iIndicies = ip.Results.iIndicies;
     target = ip.Results.target;
-    lim = ip.Results.lim;
-    startingIdx = ip.Results.startingIdx;
-    endingIdx = ip.Results.endingIdx;
+    sampleNum = ip.Results.sampleNum;
     lshell = eval(ip.Results.lshell);
     mlt = eval(ip.Results.mlt);
 
@@ -142,49 +138,51 @@ function[] = workflow(varargin)
         s = ip.Results.s;
         e = ip.Results.e;
         training_data_file_name = fullfile(dataFolder, ['training_data_' ifid '.csv']);
-        test_input_data_file_prefix = fullfile(dataFolder, 'model_input_');
+        test_input_data_file = fullfile(dataFolder, ['model_input_' ofid '.csv']);
 
         prepareTestInput(lshell, mlt, ...
             'iFile', training_data_file_name, ...
-            'ofPrefix', test_input_data_file_prefix, ...
+            'oFile', test_input_data_file, ...
             's', s, ...
             'e', e, ...
-            'lim', lim, ...
-            'startingIdx', startingIdx);
+            'sampleNum', sampleNum);
 
-        disp(['test input saved as: ' test_input_data_file_prefix '####.csv']);
+        disp(['test input saved as: ' test_input_data_file]);
     end
 
     if ip.Results.predict
         disp('calculating model output using test input...');
 
-        xscaler = fullfile(dumpFolder, [target '_xscaler_' ifid '.joblib']);
-        yscaler = fullfile(dumpFolder, [target '_yscaler_' ifid '.joblib']);
-        regressor = fullfile(dumpFolder, [target '_netRegressor_' ifid '.joblib']);
+        xscaler = fullfile(dumpFolder, [target '_xscaler_' num2str(ifid) '.joblib']);
+        yscaler = fullfile(dumpFolder, [target '_yscaler_' num2str(ifid) '.joblib']);
+        regressor = fullfile(dumpFolder, [target '_netRegressor_' num2str(ifid) '.joblib']);
+        test_input_data = fullfile(dataFolder, ['model_input_' num2str(ifid) '.csv']);
+        test_result_data = fullfile(dataFolder, ['predicted_' num2str(ofid) '.csv']);
 
-        for idx = startingIdx : endingIdx
-            test_input_data = fullfile(dataFolder, ['model_input_' num2str(idx) '.csv']);
-            test_result_data = fullfile(dataFolder, ['predicted_' num2str(idx) '.csv']);
-            system(['python3 ModelTraining/predict.py --iData=' test_input_data ...
-                ' --oData=' test_result_data ' --iIndicies=' iIndicies ...
-            ' --target=' target disableFeatureStandClause disableTargetStandClause ...
-            ' --xscaler=' xscaler ' --yscaler=' yscaler ' --model=' regressor]);
-        end
+        system(['python3 ModelTraining/predict.py --iData=' test_input_data ...
+            ' --oData=' test_result_data ...
+            ' --iIndicies=' iIndicies ...
+        ' --target=' target disableFeatureStandClause disableTargetStandClause ...
+        ' --xscaler=' xscaler ' --yscaler=' yscaler ' --model=' regressor]);
         
-        disp('model output saved');
+        disp(['model output saved as: ' test_result_data]);
     end
 
     if ip.Results.plotPredicted
         disp('plotting test output over mlt-lshell...');
 
-        for idx = startingIdx : endingIdx
-            test_result_data = fullfile(dataFolder, ['predicted_' num2str(idx) '.csv']);
+        test_result_data = ['predicted_' num2str(ifid) '.csv'];
+        plot_name_prefix = ['splt_predicted_' num2str(ifid)];
+        splitted_predictions = cutPrediction(dataFolder, test_result_data, plot_name_prefix, sampleNum);
+
+        for i = 1:sampleNum
+            test_result_data = splitted_predictions{i};
             plotting(1, plottingOption.colormap, ...
-                'predictedData', test_result_data, ...
+                'predictedData', fullfile(dataFolder, test_result_data), ...
                 'zName', target, ...
                 'lshell', lshell, ...
                 'mlt', mlt, ...
-                'output', fullfile(plotFolder, ['predicted_plot_' num2str(idx) '.png']));
+                'output', fullfile(plotFolder, strrep(test_result_data, 'csv', 'png')));
         end
 
         disp('plotting done.');

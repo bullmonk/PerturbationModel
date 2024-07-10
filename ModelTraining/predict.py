@@ -58,14 +58,14 @@ def main():
         names = X.columns
         d = xscaler.fit_transform(X)
         X = pd.DataFrame(d, columns=names)
-
+    
     # predict
     y_out = mdl.predict(torch.tensor(X.values, dtype=torch.float32))
     if target_standardization_enabled:
         y_out = yscaler.inverse_transform(y_out).flatten()
 
     # dump result
-    pd.DataFrame(y_out, columns=['predicted']).to_csv(args.oData, index=False)
+    pd.DataFrame(list(zip(input['datetime'].values, y_out)), columns=['datetime', 'predicted']).to_csv(args.oData, index=False)
 
     return
 
