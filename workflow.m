@@ -19,6 +19,7 @@ function[] = workflow(varargin)
     % train model.
     addParameter(ip, 'target', 'density_log10');
     addParameter(ip, 'iIndicies', '0:125');
+    addParameter(ip, 'disableFeatureStand', false);
     addParameter(ip, 'disableTargetStand', false);
 
     % prepare testing data.
@@ -53,9 +54,14 @@ function[] = workflow(varargin)
     lim = ip.Results.lim;
     startingIdx = ip.Results.startingIdx;
     endingIdx = ip.Results.endingIdx;
-    disableTargetStandClause = '';
     lshell = eval(ip.Results.lshell);
     mlt = eval(ip.Results.mlt);
+
+    disableFeatureStandClause = '';
+    if ip.Results.disableFeatureStand
+        disableFeatureStandClause = ' --disableFeatureStand';
+    end
+    disableTargetStandClause = '';
     if ip.Results.disableTargetStand
         disableTargetStandClause = ' --disableTargetStand';
     end
@@ -93,7 +99,7 @@ function[] = workflow(varargin)
 
         system(['python3 ModelTraining/train.py --iData=' training_data_file_name ...
             ' --iIndicies=' iIndicies ' --target=' target ...
-            disableTargetStandClause saveModelPerformanceClause saveFeatureImportanceClause ...
+            disableFeatureStandClause disableTargetStandClause saveModelPerformanceClause saveFeatureImportanceClause ...
             ' --xscaler=' xscaler ' --yscaler=' yscaler ' --model=' regressor ...
             ' --featureImp=' feature_importance_data])
 
@@ -152,7 +158,7 @@ function[] = workflow(varargin)
             test_result_data = fullfile(dataFolder, ['predicted_' num2str(idx) '.csv']);
             system(['python3 ModelTraining/predict.py --iData=' test_input_data ...
                 ' --oData=' test_result_data ' --iIndicies=' iIndicies ...
-            ' --target=' target disableTargetStandClause ...
+            ' --target=' target disableFeatureStandClause disableTargetStandClause ...
             ' --xscaler=' xscaler ' --yscaler=' yscaler ' --model=' regressor]);
         end
         

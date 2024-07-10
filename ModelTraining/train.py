@@ -27,6 +27,7 @@ def main():
     parser.add_argument("--iData", type=str, help="The file name of input data, .csv or .parquet.")
     parser.add_argument("--iIndicies", type=str, default="0:9", help="Numerical Array, referencing the indicies of columns for trainning input.")
     parser.add_argument("--target", type=str, default="norm_perturbation", help="Name of the target variable column in the original data.")
+    parser.add_argument("--disableFeatureStand", action='store_false', help="Disable feature standardization before and after training.")
     parser.add_argument("--disableTargetStand", action='store_false', help="Disable target standardization before and after training.")
     parser.add_argument("--saveModelPerformance", action='store_true', help="save predicted vs actual training data in a csv file.")
     parser.add_argument("--saveFeatureImportances", action='store_true', help="save feature importance in a csv file.")
@@ -43,6 +44,7 @@ def main():
     [s, e] = args.iIndicies.split(':')
     feature_column_indicies = range(int(s), int(e) + 1)
     target_variable_name = args.target
+    feature_standardization_enabled = args.disableFeatureStand
     target_standardization_enabled = args.disableTargetStand
     calculate_model_performance = args.saveModelPerformance
     calculate_feature_importances = args.saveFeatureImportances
@@ -55,12 +57,14 @@ def main():
     # get target variable
     target = df[target_variable_name]
 
-    # standardization on feature variables
+    # standardization on feature variables    
     X = df[df.columns[feature_column_indicies]]
-    xscaler = preprocessing.MinMaxScaler()
-    names = X.columns
-    d = xscaler.fit_transform(X)
-    X = pd.DataFrame(d, columns=names)
+    xscaler = None
+    if feature_standardization_enabled:
+        xscaler = preprocessing.MinMaxScaler()
+        names = X.columns
+        d = xscaler.fit_transform(X)
+        X = pd.DataFrame(d, columns=names)
 
     y = target
     yscaler = None
@@ -86,7 +90,8 @@ def main():
 
     # dump model
     dump(netRegressor, args.model)
-    dump(xscaler, args.xscaler)
+    if feature_standardization_enabled:
+        dump(xscaler, args.xscaler)
     if target_standardization_enabled:
         dump(yscaler, args.yscaler)
 

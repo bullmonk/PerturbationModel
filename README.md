@@ -49,7 +49,7 @@ workflow('prepareTrainingData', true, 'dataBalance', true, 'saveSubset', true, '
 
 ### Train
 ```
-workflow('train', true, 'ifid', 0, 'ofid', 1, 'iIndicies', '1:126', 'target', 'density_log10', 'disableTargetStand', true);
+workflow('train', true, 'ifid', 0, 'ofid', 0, 'iIndicies', '1:126', 'target', 'density_log10', 'disableFeatureStand', true, 'disableTargetStand', true);
 ```
 - `train` - set true to enable 2nd procedure.
 - `ifid` - input file id. To pick a result from a specific run.
@@ -73,7 +73,7 @@ workflow('prepareTestInput', true, 'ifid', 0, 'lshell', '2:0.1:6.5', 'mlt', '0:1
 
 ### Predict
 ```
-workflow('predict', true, 'startingIdx', 0, 'endingIdx', 9, 'iIndicies', '1:126', 'target', 'density_log10', 'disableTargetStand', true, 'ifid', 1);
+workflow('predict', true, 'startingIdx', 0, 'endingIdx', 9, 'iIndicies', '1:126', 'target', 'density_log10', 'disableFeatureStand', true, 'disableTargetStand', true, 'ifid', 1);
 ```
 - `predict` - set true to enable this procedure.
 - `startingIdx` - suffix of the first model input file.

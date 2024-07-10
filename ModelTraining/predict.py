@@ -26,6 +26,7 @@ def main():
     parser.add_argument("--oData", type=str, help="The file of predicted target data, .csv or .parquet.")
     parser.add_argument("--iIndicies", type=str, default="0:9", help="Numerical Array, referencing the indicies of columns for trainning input.")
     parser.add_argument("--target", type=str, default="norm_perturbation", help="Name of the target variable column in the original data.")
+    parser.add_argument("--disableFeatureStand", action='store_false', help="Disable feature standardization before and after training.")
     parser.add_argument("--disableTargetStand", action='store_false', help="Disable target standardization before and after training.")
     parser.add_argument("--model", type=str, default="dump/netRegressor.joblib", help="file name of the dumped model.")
     parser.add_argument("--xscaler", type=str, default="dump/xscaler.joblib", help="file name of the dumped xscaler.")
@@ -38,21 +39,25 @@ def main():
     [s, e] = args.iIndicies.split(':')
     feature_column_indicies = range(int(s), int(e) + 1)
     target_variable_name = args.target
+    feature_standardization_enabled = args.disableFeatureStand
     target_standardization_enabled = args.disableTargetStand
 
     # load input data.
     input = pd.read_csv(args.iData)
     mdl = load(args.model)
-    xscaler = load(args.xscaler)
+    xscaler = None
+    if feature_standardization_enabled:
+        xscaler = load(args.xscaler)
     yscaler = None
     if target_standardization_enabled:
         yscaler = load(args.yscaler)
 
     # extract features
     X = input[input.columns[feature_column_indicies]]
-    names = X.columns
-    d = xscaler.fit_transform(X)
-    X = pd.DataFrame(d, columns=names)
+    if feature_standardization_enabled:
+        names = X.columns
+        d = xscaler.fit_transform(X)
+        X = pd.DataFrame(d, columns=names)
 
     # predict
     y_out = mdl.predict(torch.tensor(X.values, dtype=torch.float32))
