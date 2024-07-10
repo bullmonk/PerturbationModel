@@ -28,6 +28,7 @@ function[] = workflow(varargin)
     addParameter(ip, 'e', '25-Apr-2018 02:23:31');
     addParameter(ip, 'lim', 100);
     addParameter(ip, 'startingIdx', 0);
+    addParameter(ip, 'endingIdx', 0);
     
     % workflow tasks.
     addParameter(ip, 'prepareTrainingData', false);
@@ -49,6 +50,13 @@ function[] = workflow(varargin)
     ofid = num2str(ip.Results.ofid);
     iIndicies = ip.Results.iIndicies;
     target = ip.Results.target;
+    lim = ip.Results.lim;
+    startingIdx = ip.Results.startingIdx;
+    endingIdx = ip.Results.endingIdx;
+    disableTargetStandClause = '';
+    if ip.Results.disableTargetStand
+        disableTargetStandClause = ' --disableTargetStand';
+    end
 
     % workflow start.
     if ip.Results.prepareTrainingData
@@ -66,10 +74,6 @@ function[] = workflow(varargin)
     if ip.Results.train
         disp('train model...');
 
-        disableTargetStandClause = '';
-        if ip.Results.disableTargetStand
-            disableTargetStandClause = ' --disableTargetStand';
-        end
         saveModelPerformanceClause = '';
         if ip.Results.plotTrainingPerf
             saveModelPerformanceClause= '--saveModelPerformance';
@@ -79,11 +83,11 @@ function[] = workflow(varargin)
             saveFeatureImportanceClause= ' --saveFeatureImportances';
         end
         training_data_file_name = fullfile(dataFolder, ['training_data_' ifid '.csv']);
+        % comes with saveFeatureImportanceClause.
+        feature_importance_data = fullfile(dataFolder, [target '_cmp_plot_data_' ofid '.csv']);
         xscaler = fullfile(dumpFolder, [target '_xscaler_' ofid '.joblib']);
         yscaler = fullfile(dumpFolder, [target '_yscaler_' ofid '.joblib']);
         regressor = fullfile(dumpFolder, [target '_netRegressor_' ofid '.joblib']);
-        % comes with saveFeatureImportanceClause.
-        feature_importance_data = fullfile(dataFolder, [target '_cmp_plot_data_' ofid '.csv']);
 
         system(['python3 ModelTraining/train.py --iData=' training_data_file_name ...
             ' --iIndicies=' iIndicies ' --target=' target ...
@@ -122,8 +126,6 @@ function[] = workflow(varargin)
         mlt = eval(ip.Results.mlt);
         s = ip.Results.s;
         e = ip.Results.e;
-        lim = ip.Results.lim;
-        startingIdx = ip.Results.startingIdx;
         training_data_file_name = fullfile(dataFolder, ['training_data_' ifid '.csv']);
         test_input_data_file_prefix = fullfile(dataFolder, 'model_input_');
 
@@ -141,10 +143,20 @@ function[] = workflow(varargin)
     if ip.Results.predict
         disp('calculating model output using test input...');
 
-        system(['python3 ModelTraining/predict.py --iData=' test_input_data ' --oData=' test_result_data ' --iIndicies=' iIndicies ...
-            ' --target=' target disableTargetStandClause ' --xscaler=' xscaler ' --yscaler=' yscaler ' --model=' regressor]);
+        xscaler = fullfile(dumpFolder, [target '_xscaler_' ifid '.joblib']);
+        yscaler = fullfile(dumpFolder, [target '_yscaler_' ifid '.joblib']);
+        regressor = fullfile(dumpFolder, [target '_netRegressor_' ifid '.joblib']);
 
-        disp(['model output saved as: ' test_result_data]);
+        for idx = startingIdx : endingIdx
+            test_input_data = fullfile(dataFolder, ['model_input_' num2str(idx) '.csv']);
+            test_result_data = fullfile(dataFolder, ['predicted_' num2str(idx) '.csv']);
+            system(['python3 ModelTraining/predict.py --iData=' test_input_data ...
+                ' --oData=' test_result_data ' --iIndicies=' iIndicies ...
+            ' --target=' target disableTargetStandClause ...
+            ' --xscaler=' xscaler ' --yscaler=' yscaler ' --model=' regressor]);
+        end
+        
+        disp('model output saved');
     end
 
     if ip.Results.plotPredicted

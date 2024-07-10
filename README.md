@@ -73,5 +73,16 @@ workflow('prepareTestInput', true, 'ifid', 0, 'lshell', '2:0.1:6.5', 'mlt', '0:1
 
 ### Predict
 ```
+workflow('predict', true, 'startingIdx', 0, 'endingIdx', 9, 'iIndicies', '1:126', 'target', 'density_log10', 'disableTargetStand', true, 'ifid', 1);
+```
+- `predict` - set true to enable this procedure.
+- `startingIdx` - suffix of the first model input file.
+- `endingIdx` - suffix of the last model input file.
+- `iIndicies` - indicies of input features, which is inherited from train procedure.
+- `target` - target variable name, inherited from train procedure.
+- `disableTargetStand` - disable normalization of the target variable.
+- `ifid` - the input file id to select xscaler, yscaler, and regressor.
 
+### Plot Predicted
+```
 ```
