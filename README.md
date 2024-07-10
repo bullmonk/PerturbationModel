@@ -49,7 +49,7 @@ workflow('prepareTrainingData', true, 'dataBalance', true, 'saveSubset', true, '
 
 ### Train
 ```
-workflow('train', true, 'ifid', 0, 'ofid', 0, 'iIndicies', '1:126', 'target', 'density_log10', 'disableFeatureStand', true, 'disableTargetStand', true);
+workflow('train', true, 'ifid', 0, 'ofid', 0, 'iIndicies', '1:126', 'target', 'density_log10', 'disableTargetStand', true);
 ```
 - `train` - set true to enable 2nd procedure.
 - `ifid` - input file id. To pick a result from a specific run.
@@ -60,7 +60,7 @@ workflow('train', true, 'ifid', 0, 'ofid', 0, 'iIndicies', '1:126', 'target', 'd
 
 ### Prepare Model Input
 ```
-workflow('prepareTestInput', true, 'ifid', 0, 'lshell', '2:0.1:6.5', 'mlt', '0:1:24', 's', '24-Apr-2015 12:23:31', 'e', '30-Apr-2015 12:23:31', 'lim', 10, 'startingIdx', 0);
+workflow('prepareTestInput', true, 'ifid', 0, 'lshell', '2:0.1:6.5', 'mlt', '0:1:24', 's', '05-May-2015 12:23:31', 'e', '20-May-2015 12:23:31', 'lim', 30, 'startingIdx', 0);
 ```
 - `prepareTestInput` - set true to enable this procedure.
 - `ifid` - input file id. To pick a result from a specific run.
@@ -73,7 +73,7 @@ workflow('prepareTestInput', true, 'ifid', 0, 'lshell', '2:0.1:6.5', 'mlt', '0:1
 
 ### Predict
 ```
-workflow('predict', true, 'startingIdx', 0, 'endingIdx', 9, 'iIndicies', '1:126', 'target', 'density_log10', 'disableFeatureStand', true, 'disableTargetStand', true, 'ifid', 1);
+workflow('predict', true, 'startingIdx', 0, 'endingIdx', 29, 'iIndicies', '1:126', 'target', 'density_log10', 'disableTargetStand', true, 'ifid', 0);
 ```
 - `predict` - set true to enable this procedure.
 - `startingIdx` - suffix of the first model input file.
@@ -85,7 +85,7 @@ workflow('predict', true, 'startingIdx', 0, 'endingIdx', 9, 'iIndicies', '1:126'
 
 ### Plot Predicted
 ```
-workflow('plotPredicted', true, 'startingIdx', 0, 'endingIdx', 9, 'target', 'density_log10');
+workflow('plotPredicted', true, 'startingIdx', 0, 'endingIdx', 29, 'target', 'density_log10');
 ```
 - `plotPredicted` - set true to enable this procedure.
 - `startingIdx` - suffix of the first model input file.
@@ -94,5 +94,5 @@ workflow('plotPredicted', true, 'startingIdx', 0, 'endingIdx', 9, 'target', 'den
 
 ### A Complete Workflow
 ```
-workflow('prepareTrainingData', true, 'dataBalance', true, 'saveSubset', true, 'fractionDenominator', 1000, 'ofid', 0, 'train', true, 'ifid', 0, 'iIndicies', '1:126', 'target', 'density_log10', 'disableTargetStand', true, 'prepareTestInput', true, 'lshell', '2:0.1:6.5', 'mlt', '0:1:24', 's', '24-Apr-2015 12:23:31', 'e', '30-Apr-2015 12:23:31', 'lim', 10, 'startingIdx', 0, 'predict', true, 'plotPredicted', true, 'startingIdx', 0, 'endingIdx', 9);
+workflow('prepareTrainingData', true, 'dataBalance', true, 'saveSubset', true, 'fractionDenominator', 1000, 'ofid', 0, 'train', true, 'ifid', 0, 'iIndicies', '1:126', 'target', 'density_log10', 'disableTargetStand', true, 'prepareTestInput', true, 'lshell', '2:0.1:6.5', 'mlt', '0:1:24', 's', '05-May-2015 12:23:31', 'e', '20-May-2015 12:23:31', 'lim', 30, 'startingIdx', 0, 'predict', true, 'plotPredicted', true, 'startingIdx', 0, 'endingIdx', 29);
 ```
