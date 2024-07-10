@@ -5,6 +5,8 @@ function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
     addParameter(ip, 'fractionDenominator', 10000);
     addParameter(ip, 'dataFolder', 'data');
     addParameter(ip, 'filename', num2str(1));
+    addParameter(ip, 'perturbationWindow', 2);
+    addParameter(ip, 'windowPopulation', 10);
     parse(ip, dataBalance, saveSubset, varargin{:});
 
 
@@ -24,7 +26,8 @@ function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
 
     % Calculate complementory variables for machine learning model.
     data.density_log10 = log10(data.density);
-    [data.perturbation, data.background] = calcPerturbation(data.density, data.datetime, minutes(2), 10);
+    [data.perturbation, data.background] = calcPerturbation(data.density, data.datetime, ...
+        minutes(ip.Results.perturbationWindow), ip.Results.windowPopulation);
     data.normalized_perturbation = data.perturbation ./ data.background;
 
     % fetch omni data: ae_index and sym_h, fetched and interpolated

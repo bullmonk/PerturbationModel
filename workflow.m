@@ -15,6 +15,8 @@ function[] = workflow(varargin)
     addParameter(ip, 'dataBalance', true);
     addParameter(ip, 'saveSubset', true);
     addParameter(ip, 'fractionDenominator', 10000);
+    addParameter(ip, 'perturbationWindow', 2);
+    addParameter(ip, 'windowPopulation', 10);
 
     % train model.
     addParameter(ip, 'target', 'density_log10');
@@ -73,8 +75,15 @@ function[] = workflow(varargin)
         fractionDenominator = ip.Results.fractionDenominator;
         fid = num2str(ip.Results.ofid);
         training_data_file_name = ['training_data_' ofid '.csv'];
+        perturbationWindow = ip.Results.perturbationWindow;
+        windowPopulation = ip.Results.windowPopulation;
+
         prepareTrainingData(ip.Results.dataBalance, ip.Results.saveSubset, ...
-            'fractionDenominator', fractionDenominator, 'dataFolder', dataFolder, 'filename', training_data_file_name);
+            'fractionDenominator', fractionDenominator, ...
+            'perturbationWindow', perturbationWindow, ...
+            'windowPopulation', windowPopulation, ...
+            'dataFolder', dataFolder, ...
+            'filename', training_data_file_name);
         
         disp(['training data ready as: ' training_data_file_name]);
     end

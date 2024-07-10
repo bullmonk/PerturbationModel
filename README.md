@@ -39,13 +39,15 @@ PerturbationModel
 
 ### Prepare Training Data
 ```
-workflow('prepareTrainingData', true, 'dataBalance', true, 'saveSubset', true, 'fractionDenominator', 1000, 'ofid', 0);
+workflow('prepareTrainingData', true, 'dataBalance', true, 'saveSubset', true, 'fractionDenominator', 1000, 'ofid', 0, 'perturbationWindow', 2, 'windowPopulation', 10);
 ```
 - `prepareTrainingData` - set true to enable first procedure.
 - `dataBalance` - set true to delete some close to 0 data to achieve balanced input.
 - `saveSubset` - set true to use only subset of data. (TODO: enable whole data procedure)
 - `fractionDenominator` - come with `saveSubset`, the fractional size of used data.
 - `ofid` - the output data file ID. manually set to distinguish each run.
+- `perturbationWindow` - the perturbation window length in minutes.
+- `windowPopulation` - the perturbation window population lower bond.
 
 ### Train
 ```
@@ -94,5 +96,5 @@ workflow('plotPredicted', true, 'startingIdx', 0, 'endingIdx', 29, 'target', 'de
 
 ### A Complete Workflow
 ```
-workflow('prepareTrainingData', true, 'dataBalance', true, 'saveSubset', true, 'fractionDenominator', 1000, 'ofid', 0, 'train', true, 'ifid', 0, 'iIndicies', '1:126', 'target', 'density_log10', 'disableTargetStand', true, 'prepareTestInput', true, 'lshell', '2:0.1:6.5', 'mlt', '0:1:24', 's', '05-May-2015 12:23:31', 'e', '20-May-2015 12:23:31', 'lim', 30, 'startingIdx', 0, 'predict', true, 'plotPredicted', true, 'startingIdx', 0, 'endingIdx', 29);
+workflow('prepareTrainingData', true, 'dataBalance', true, 'saveSubset', true, 'fractionDenominator', 1000, 'ofid', 0, 'perturbationWindow', 2, 'windowPopulation', 10, 'train', true, 'ifid', 0, 'iIndicies', '1:126', 'target', 'density_log10', 'disableTargetStand', true, 'prepareTestInput', true, 'lshell', '2:0.1:6.5', 'mlt', '0:1:24', 's', '05-May-2015 12:23:31', 'e', '20-May-2015 12:23:31', 'lim', 30, 'startingIdx', 0, 'predict', true, 'plotPredicted', true, 'startingIdx', 0, 'endingIdx', 29);
 ```
