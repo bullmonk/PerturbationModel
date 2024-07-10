@@ -91,3 +91,8 @@ workflow('plotPredicted', true, 'startingIdx', 0, 'endingIdx', 9, 'target', 'den
 - `startingIdx` - suffix of the first model input file.
 - `endingIdx` - suffix of the last model input file.
 - `target` - target variable name, inherited from train procedure.
+
+### A Complete Workflow
+```
+workflow('prepareTrainingData', true, 'dataBalance', true, 'saveSubset', true, 'fractionDenominator', 1000, 'ofid', 0, 'train', true, 'ifid', 0, 'iIndicies', '1:126', 'target', 'density_log10', 'disableTargetStand', true, 'prepareTestInput', true, 'lshell', '2:0.1:6.5', 'mlt', '0:1:24', 's', '24-Apr-2015 12:23:31', 'e', '30-Apr-2015 12:23:31', 'lim', 10, 'startingIdx', 0, 'predict', true, 'plotPredicted', true, 'startingIdx', 0, 'endingIdx', 9);
+```
