@@ -85,4 +85,9 @@ workflow('predict', true, 'startingIdx', 0, 'endingIdx', 9, 'iIndicies', '1:126'
 
 ### Plot Predicted
 ```
+workflow('plotPredicted', true, 'startingIdx', 0, 'endingIdx', 9, 'target', 'density_log10');
 ```
+- `plotPredicted` - set true to enable this procedure.
+- `startingIdx` - suffix of the first model input file.
+- `endingIdx` - suffix of the last model input file.
+- `target` - target variable name, inherited from train procedure.

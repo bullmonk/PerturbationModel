@@ -4,6 +4,8 @@ function[wIndex] = plotting(wIndex, pOption, varargin)
     addRequired(ip, 'wIndex');
     addRequired(ip, 'pOption');
     addParameter(ip, 'zName', 'log_{10} density');
+    addParameter(ip, 'lshell', '2:0.1:6.5');
+    addParameter(ip, 'mlt', '0:1:24');
     addParameter(ip, 'trainingData', 'data/satellite_100.csv');
     addParameter(ip, 'predictedData', 'data/predicted_density_log10.csv');
     addParameter(ip, 'cmpData', 'data/density_log10_cmp_plot_data.csv');
@@ -97,12 +99,12 @@ function[wIndex] = plotting(wIndex, pOption, varargin)
             ylim([-20 -10]);
             ylabel(ax3, 'sym\_h');
         case plottingOption.colormap
-            lshell = 2:0.1:6.5;
-            mlt = 0:1:24;
+            lshell = ip.Results.lshell;
+            mlt = ip.Results.mlt;
             % coord = combvec(lshell, mlt);
             % X = reshape(coord(1,:), length(lshell), length(mlt));
             % Y = reshape(coord(2,:), length(lshell), length(mlt));
-            Z = reshape(predicted{2:end,1}, length(lshell), length(mlt));
+            Z = reshape(predicted{1:end,1}, length(lshell), length(mlt));
             [fig, ~] = getNextFigure(wIndex, [ip.Results.zName ' - mlt - lshell'], 'wCut', 2, 'hCut', 2);
             figure(fig)
             imagesc(mlt, lshell, Z);

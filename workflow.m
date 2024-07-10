@@ -54,6 +54,8 @@ function[] = workflow(varargin)
     startingIdx = ip.Results.startingIdx;
     endingIdx = ip.Results.endingIdx;
     disableTargetStandClause = '';
+    lshell = eval(ip.Results.lshell);
+    mlt = eval(ip.Results.mlt);
     if ip.Results.disableTargetStand
         disableTargetStandClause = ' --disableTargetStand';
     end
@@ -122,8 +124,6 @@ function[] = workflow(varargin)
     if ip.Results.prepareTestInput
         disp('preparing test input...');
 
-        lshell = eval(ip.Results.lshell);
-        mlt = eval(ip.Results.mlt);
         s = ip.Results.s;
         e = ip.Results.e;
         training_data_file_name = fullfile(dataFolder, ['training_data_' ifid '.csv']);
@@ -162,10 +162,17 @@ function[] = workflow(varargin)
     if ip.Results.plotPredicted
         disp('plotting test output over mlt-lshell...');
 
-        plotting(1, plottingOption.colormap, 'predictedData', test_result_data, 'zName', target, 'output', ...
-            fullfile(plotFolder, [target '_predicted_' fid '.png']));
+        for idx = startingIdx : endingIdx
+            test_result_data = fullfile(dataFolder, ['predicted_' num2str(idx) '.csv']);
+            plotting(1, plottingOption.colormap, ...
+                'predictedData', test_result_data, ...
+                'zName', target, ...
+                'lshell', lshell, ...
+                'mlt', mlt, ...
+                'output', fullfile(plotFolder, ['predicted_plot_' num2str(idx) '.png']));
+        end
 
-        disp(['plot saved as: ' target '_predicted.png']);
+        disp('plotting done.');
     end
 
 end
