@@ -13,8 +13,9 @@ function[] = workflow(varargin)
 
     % prepare training data.
     addParameter(ip, 'dataBalance', true);
-    addParameter(ip, 'saveSubset', true);
-    addParameter(ip, 'fractionDenominator', 10000);
+    addParameter(ip, 'saveFractionalSubset', false);
+    addParameter(ip, 'fractionDenominator', 1000);
+    addParameter(ip, 'saveTimelineSubset', true);
     addParameter(ip, 'perturbationWindow', 2);
     addParameter(ip, 'windowPopulation', 10);
 
@@ -27,8 +28,8 @@ function[] = workflow(varargin)
     % prepare testing data.
     addParameter(ip, 'lshell', '2:0.1:6.5');
     addParameter(ip, 'mlt', '0:1:24');
-    addParameter(ip, 's', '24-Apr-2018 02:23:31');
-    addParameter(ip, 'e', '25-Apr-2018 02:23:31');
+    addParameter(ip, 's', '31-May-2013 00:00:00');
+    addParameter(ip, 'e', '01-Jun-2013 00:00:00');
     addParameter(ip, 'sampleNum', 100);
     
     % workflow tasks.
@@ -74,8 +75,9 @@ function[] = workflow(varargin)
         perturbationWindow = ip.Results.perturbationWindow;
         windowPopulation = ip.Results.windowPopulation;
 
-        prepareTrainingData(ip.Results.dataBalance, ip.Results.saveSubset, ...
-            'fractionDenominator', fractionDenominator, ...
+        prepareTrainingData(ip.Results.dataBalance, ...
+            ip.Results.saveFractionalSubset, ip.Results.saveTimelineSubset, ...
+            's', ip.Results.s, 'e', ip.Results.e, ...
             'perturbationWindow', perturbationWindow, ...
             'windowPopulation', windowPopulation, ...
             'dataFolder', dataFolder, ...

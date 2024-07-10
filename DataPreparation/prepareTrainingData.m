@@ -1,14 +1,17 @@
-function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
+function [] = prepareTrainingData(dataBalance, saveFractionalSubset, saveTimelineSubset, varargin)
     ip = inputParser;
     addRequired(ip, 'dataBalance');
-    addRequired(ip, 'saveSubset');
+    addRequired(ip, 'saveFractionalSubset');
+    addRequired(ip, 'saveTimelineSubset');
     addParameter(ip, 'fractionDenominator', 10000);
+    addParameter(ip, 's', '31-May-2013 12:00:00');
+    addParameter(ip, 'e', '31-May-2013 20:00:00');
     addParameter(ip, 'dataFolder', 'data');
     addParameter(ip, 'filename', num2str(1));
     addParameter(ip, 'perturbationWindow', 2);
     addParameter(ip, 'windowPopulation', 10);
-    parse(ip, dataBalance, saveSubset, varargin{:});
 
+    parse(ip, dataBalance, saveFractionalSubset, saveTimelineSubset, varargin{:});
 
     % load and complete satellite data.
     data = load(fullfile(ip.Results.dataFolder, 'ab_den_envelope.mat'), "-mat");
@@ -59,12 +62,18 @@ function [] = prepareTrainingData(dataBalance, saveSubset, varargin)
     tbl = array2table(matrix, 'VariableNames', data.variable_names);
     tbl.datetime = datetime(tbl.datetime, 'ConvertFrom', 'epochtime');
 
-    if saveSubset
+    if saveFractionalSubset
         sz = size(matrix, 1);
         row_indexes = randperm(sz, int32(sz/ip.Results.fractionDenominator));
         subtable = tbl(row_indexes, :);
         tbl = subtable;
         clear sz row_indexes subtable
+    end
+
+    if saveTimelineSubset
+        s = datetime(ip.Results.s);
+        e = datetime(ip.Results.e);
+        tbl = tbl(tbl.datetime >= s & tbl.datetime <=e, :);
     end
 
     file = fullfile(ip.Results.dataFolder, ip.Results.filename);
