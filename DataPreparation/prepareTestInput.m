@@ -1,28 +1,56 @@
 function[] = prepareTestInput(lshell, mlt, varargin)
     % input definition.
     ip = inputParser;
+
     addRequired(ip, 'lshell');
     addRequired(ip, 'mlt');
-    addParameter(ip, 'iFile', 'satellite_100.csv');
-    addParameter(ip, 'oFile', 'featuresForModelPlot.csv');
-    addParameter(ip, 'valueRow', -1);
+    addParameter(ip, 'iFile', 'data/satellite_1000.csv');
+    addParameter(ip, 'ofPrefix', 'data/modelInput_');
+    addParameter(ip, 'startingIdx', 0);
+    addParameter(ip, 'lim', 100);
+    addParameter(ip, 's', '24-Apr-2018 02:23:31');
+    addParameter(ip, 'e', '24-Apr-2018 02:23:31');
+
     parse(ip, lshell, mlt, varargin{:});
 
-    % create result.
-    tbl = readtable(ip.Results.iFile);
+    % set variables.
+    training_data = ip.Results.iFile;
+    model_input_file_prefix = ip.Results.ofPrefix;
+    s = datetime(ip.Results.s);
+    e = datetime(ip.Results.e);
+    lim = ip.Results.lim;
+    startingIdx = ip.Results.startingIdx;
+
+    % for a row of traing data table, we want to expand it to global data.
+    tbl = readtable(training_data);
     coord = combvec(lshell, mlt);
     len = length(coord); % total number of rows in our test input.
-    M = median(tbl, 1);
-    if ip.Results.valueRow > 0
-        M = tbl(ip.Results.valueRow, :);
+
+    % sort time series in trainign data.
+    dt = sort(tbl.datetime);
+    % pick those within the range.
+    times = dt(dt >= s & dt <= e);
+
+    % for each picked time spot, up to a limit, create model input one by
+    % one.
+    if lim > length(times)
+        lim = length(times);
     end
-    test_input = repmat(M, len, 1);
-    test_input.lshell = coord(1,:)';
-    test_input.cos = cos(coord(2,:) / 24 * 2 * pi)';
-    test_input.sin = sin(coord(2,:) / 24 * 2 * pi)';
-    test_input.mlat(:) = 0;
-    test_input.ae_index = (0.1:0.1:0.1*len)';
-    % save output.
-    writetable(test_input, ip.Results.oFile, 'WriteVariableNames', true);
+    idx = 1;
+    step = length(times) / lim;
+
+    for count = 1 : lim
+        idx = floor(idx);
+        chosen = tbl(tbl.datetime == times(idx), :);
+        idx = idx + step;
+        test_input = repmat(chosen, len, 1);
+        test_input.lshell = coord(1,:)';
+        test_input.mlt = coord(2,:)';
+        test_input.cos = cos(coord(2,:) / 24 * 2 * pi)';
+        test_input.sin = sin(coord(2,:) / 24 * 2 * pi)';
+        % save output.
+        writetable(test_input, [model_input_file_prefix num2str(startingIdx) '.csv'], 'WriteVariableNames', true);
+        startingIdx = startingIdx + 1;
+    end
 
 end

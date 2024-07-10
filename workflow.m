@@ -24,8 +24,11 @@ function[] = workflow(varargin)
     % prepare testing data.
     addParameter(ip, 'lshell', '2:0.1:6.5');
     addParameter(ip, 'mlt', '0:1:24');
+    addParameter(ip, 's', '24-Apr-2018 02:23:31');
+    addParameter(ip, 'e', '25-Apr-2018 02:23:31');
+    addParameter(ip, 'lim', 100);
+    addParameter(ip, 'startingIdx', 0);
     
-
     % workflow tasks.
     addParameter(ip, 'prepareTrainingData', false);
     addParameter(ip, 'train', false);
@@ -46,8 +49,6 @@ function[] = workflow(varargin)
     ofid = num2str(ip.Results.ofid);
     iIndicies = ip.Results.iIndicies;
     target = ip.Results.target;
-    lshell = eval(ip.Results.lshell);
-    mlt = eval(ip.Results.mlt);
 
     % workflow start.
     if ip.Results.prepareTrainingData
@@ -116,21 +117,42 @@ function[] = workflow(varargin)
 
     if ip.Results.prepareTestInput
         disp('preparing test input...');
-        prepareTestInput(lshell, mlt, 'iFile', training_data, 'oFile', test_input_data, 'valueRow', ip.Results.valueRow);
-        disp(['test input saved as: ' test_input_data]);
+
+        lshell = eval(ip.Results.lshell);
+        mlt = eval(ip.Results.mlt);
+        s = ip.Results.s;
+        e = ip.Results.e;
+        lim = ip.Results.lim;
+        startingIdx = ip.Results.startingIdx;
+        training_data_file_name = fullfile(dataFolder, ['training_data_' ifid '.csv']);
+        test_input_data_file_prefix = fullfile(dataFolder, 'model_input_');
+
+        prepareTestInput(lshell, mlt, ...
+            'iFile', training_data_file_name, ...
+            'ofPrefix', test_input_data_file_prefix, ...
+            's', s, ...
+            'e', e, ...
+            'lim', lim, ...
+            'startingIdx', startingIdx);
+
+        disp(['test input saved as: ' test_input_data_file_prefix '####.csv']);
     end
 
     if ip.Results.predict
         disp('calculating model output using test input...');
+
         system(['python3 ModelTraining/predict.py --iData=' test_input_data ' --oData=' test_result_data ' --iIndicies=' iIndicies ...
             ' --target=' target disableTargetStandClause ' --xscaler=' xscaler ' --yscaler=' yscaler ' --model=' regressor]);
+
         disp(['model output saved as: ' test_result_data]);
     end
 
     if ip.Results.plotPredicted
         disp('plotting test output over mlt-lshell...');
+
         plotting(1, plottingOption.colormap, 'predictedData', test_result_data, 'zName', target, 'output', ...
             fullfile(plotFolder, [target '_predicted_' fid '.png']));
+
         disp(['plot saved as: ' target '_predicted.png']);
     end
 

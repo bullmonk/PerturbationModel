@@ -57,3 +57,21 @@ workflow('train', true, 'ifid', 0, 'ofid', 1, 'iIndicies', '1:126', 'target', 'd
 - `iIndicies` - to choose column indicies of input feature columns.
 - `target` - to choose the column name of the target variable.
 - `disableTargetStand` - set true to disable target variable normalization.
+
+### Prepare Model Input
+```
+workflow('prepareTestInput', true, 'ifid', 0, 'lshell', '2:0.1:6.5', 'mlt', '0:1:24', 's', '24-Apr-2015 12:23:31', 'e', '30-Apr-2015 12:23:31', 'lim', 10, 'startingIdx', 0);
+```
+- `prepareTestInput` - set true to enable this procedure.
+- `ifid` - input file id. To pick a result from a specific run.
+- `lshell` - lshell range.
+- `mlt` - mlt range.
+- `s` - starting of a time period, where ae_index and sym_h data should be chosen from.
+- `e` - ending of a time period, where ae_index and sym_h data should be chosen from.
+- `lim` - number of input files wanted. Will be evenly sliced.
+- `startingIdx` - the output files will have same prefix, and a distinguishing idx as a suffix.
+
+### Predict
+```
+
+```
