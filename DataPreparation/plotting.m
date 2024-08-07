@@ -116,7 +116,8 @@ function[wIndex] = plotting(wIndex, pOption, varargin)
             c = colorbar;
             c.Label.FontSize = 30;
             c.Label.String = ip.Results.zName;
-            clim([min(Z, [], "all") max(Z, [], "all") + 1]);
+            % clim([min(Z, [], "all") max(Z, [], "all") + 1]);
+            clim([0 4]);
             colormap("jet");
         case plottingOption.modelComparison
             plot_name = 'Model Output Comparison';
