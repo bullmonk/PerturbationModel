@@ -109,3 +109,21 @@ workflow('plotPredicted', true, 'target', 'density_log10', 'ifid', 0, 'sampleNum
 - `target` - target variable name, inherited from train procedure.
 - `ifid` - file id to pick from which run.
 - `sampleNum` - sample number from previous Model Input Process.
+
+## Example Frequently Usage Routines
+
+#### Train Model using a randomly fractional data
+
+- a training dataset with 1/100 datasize will be created, `training_data_0`, which won't be used further. So that I will change this suffix to make it a backup instead of active pipeline data. 
+- TODO: optimize this flow to remove this manual procedure.
+- a model will be saved in `/dump` folder with file id suffix `_0`, which will be referenced later.
+```
+workflow('prepareTrainingData', true, 'dataBalance', true, 'saveFractionalSubset', true, 'saveTimelineSubset', false, 'fractionDenominator', 100, 'ofid', 0, 'perturbationWindow', 2, 'windowPopulation', 10, 'train', true, 'ifid', 0, 'ofid', 0, 'iIndicies', '1:126', 'target', 'density_log10', 'disableTargetStand', true);
+```
+
+#### Create a test data of a time period and plot using the prediction result
+- note the `sampleNum` here is set to be the total number of hours between 30-May-2013 00:00:00 and 06-Jun-2013 00:00:00, so that we can have a sample for each hour.
+
+```
+workflow('prepareTrainingData', true, 'dataBalance', true, 'saveFractionalSubset', false,'saveTimelineSubset', true, 's', '28-May-2013 00:00:00', 'e', '07-Jun-2013 00:00:00', 'ofid', 0,'perturbationWindow', 2, 'windowPopulation', 10, 'prepareTestInput', true, 'ifid', 0, 'ofid', 0,'lshell', '2:0.1:6.5', 'mlt', '0:1:24', 's', '30-May-2013 00:00:00', 'e', '06-Jun-2013 00:00:00', 'sampleNum', 132, 'predict', true, 'iIndicies', '1:126', 'target', 'density_log10','disableTargetStand', true, 'ifid', 0, 'ofid', 0, 'plotPredicted', true, 'target','density_log10', 'ifid', 0, 'sampleNum', 132);
+```
