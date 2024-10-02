@@ -22,3 +22,4 @@ dependencies:
   - pytorch-cuda=11.8.0
   - skorch=0.15.0
   - dask=2024.9.1
+  - dask-ml=2024.4.4

@@ -7,7 +7,7 @@ function [] = prepareTrainingData(dataBalance, saveFractionalSubset, saveTimelin
     addParameter(ip, 's', '31-May-2013 12:00:00');
     addParameter(ip, 'e', '31-May-2013 20:00:00');
     addParameter(ip, 'dataFolder', 'data');
-    addParameter(ip, 'filename', num2str(1));
+    addParameter(ip, 'filename', 'test.csv');
     addParameter(ip, 'perturbationWindow', 2);
     addParameter(ip, 'windowPopulation', 10);
 
